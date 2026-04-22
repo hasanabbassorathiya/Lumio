@@ -1,0 +1,132 @@
+name: lumio_iptv
+description: Lumio IPTV - A professional IPTV player application supporting Windows, Android Mobile, and Android TV with D-Pad navigation.
+publish_to: 'none'
+version: 1.4.32+152
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Video Player
+  media_kit: ^1.1.11
+  media_kit_video: ^1.2.5
+  media_kit_libs_video: ^1.0.5
+  media_kit_libs_windows_video: ^1.0.10
+  media_kit_libs_android_video: ^1.3.6
+  video_player: ^2.9.2
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  sqflite: ^2.3.0
+  sqflite_common_ffi: ^2.3.0+4
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  file_picker: ^8.0.0
+  ffi: ^2.1.0
+  
+  # HTTP & Network
+  http: ^1.1.2
+  dio: ^5.4.0
+  
+  # Update Service
+  version: ^3.0.2
+  package_info_plus: ^4.2.0
+  url_launcher: ^6.2.2
+  
+  # UI Components
+  cached_network_image: ^3.3.0
+  flutter_cache_manager: ^3.3.1
+  shimmer: ^3.0.0
+  flutter_staggered_animations: ^1.1.1
+  qr_flutter: ^4.1.0
+  
+  # Utilities
+  intl: ^0.20.2
+  xml: ^6.5.0
+  
+  # Logging
+  logger: ^2.0.2
+  
+  # Window Management (Windows)
+  window_manager: ^0.3.9
+  collection: ^1.18.0
+  uuid: ^4.2.1
+  
+  # Icons
+  cupertino_icons: ^1.0.6
+  material_design_icons_flutter: ^7.0.7296
+  screen_brightness: ^2.1.7
+  wakelock_plus: ^1.1.6
+  screen_retriever: ^0.1.9
+  device_info_plus: ^12.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.13.1
+
+
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/icons/
+    - assets/images/
+    - assets/fonts/
+    - assets/html/
+    - assets/sql/
+
+  fonts:
+    # Chinese Fonts
+    - family: SimHei
+      fonts:
+        - asset: assets/fonts/SimHei.ttf
+    - family: SimSun
+      fonts:
+        - asset: assets/fonts/SimSun.ttc
+    - family: KaiTi
+      fonts:
+        - asset: assets/fonts/KaiTi.ttf
+    - family: FangSong
+      fonts:
+        - asset: assets/fonts/FangSong.ttf
+    - family: MicrosoftYaHei
+      fonts:
+        - asset: assets/fonts/MicrosoftYaHei.ttc
+    # English Fonts
+    - family: Arial
+      fonts:
+        - asset: assets/fonts/Arial.ttf
+    - family: Calibri
+      fonts:
+        - asset: assets/fonts/Calibri.ttf
+    - family: Georgia
+      fonts:
+        - asset: assets/fonts/Georgia.ttf
+    - family: Verdana
+      fonts:
+        - asset: assets/fonts/Verdana.ttf
+    - family: Tahoma
+      fonts:
+        - asset: assets/fonts/Tahoma.ttf
+    - family: TimesNewRoman
+      fonts:
+        - asset: assets/fonts/TimesNewRoman.ttf
+    - family: SegoeUI
+      fonts:
+        - asset: assets/fonts/SegoeUI.ttf
+    - family: Impact
+      fonts:
+        - asset: assets/fonts/Impact.ttf
+
+

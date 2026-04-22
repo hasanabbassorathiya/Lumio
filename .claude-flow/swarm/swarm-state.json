@@ -1,0 +1,23 @@
+{
+  "swarms": {
+    "swarm-1776901415961-pngc40": {
+      "swarmId": "swarm-1776901415961-pngc40",
+      "topology": "hierarchical",
+      "maxAgents": 8,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical",
+        "maxAgents": 8,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-04-22T23:43:35.961Z",
+      "updatedAt": "2026-04-22T23:43:35.961Z"
+    }
+  },
+  "version": "3.0.0"
+}

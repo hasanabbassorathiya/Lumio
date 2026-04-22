@@ -1,0 +1,50 @@
+name: Update EPG Data
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Run every 3 hours
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-epg:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Download EPG files
+        run: |
+          mkdir -p docs
+          
+          # Download e.xml from baoer.org.cn
+          echo "Downloading e.xml..."
+          curl -L --retry 3 --retry-delay 5 -o docs/e.xml "https://epg.zsdc.eu.org/t.xml" || echo "Failed to download e.xml"
+          
+          # Show file sizes
+          echo "File sizes:"
+          ls -lh docs/*.xml 2>/dev/null || echo "No XML files found"
+          
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add docs/e.xml 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "chore: update EPG data [skip ci]"
+          git push

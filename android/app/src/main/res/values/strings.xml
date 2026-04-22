@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlutterIPTV</string>
+    
+    <!-- Common -->
+    <string name="uncategorized">Uncategorized</string>
+    <string name="channel">Channel %d</string>
+    <string name="category_name">Category</string>
+    
+    <!-- Player -->
+    <string name="press_back_again_to_exit">Press back again to exit</string>
+    <string name="source_indicator">Source %1$d/%2$d</string>
+    <string name="hardware_decode">HW</string>
+    <string name="software_decode">SW</string>
+    <string name="epg_ends_in_minutes">Ends in %d min</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="operation_failed">Operation failed</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="up_next">Up Next</string>
+    <string name="controls_hint">↑↓ Switch channel · ← Short:Source/Double:Category · Long←→ Seek · OK Play/Pause · Double OK Favorite · Long OK Multi-screen</string>
+    <string name="category">Category</string>
+    <string name="channels">Channels</string>
+    
+    <!-- Multi-screen -->
+    <string name="multi_screen_mode">Multi-screen Mode</string>
+    <string name="press_back_to_exit">Press Back to exit</string>
+    <string name="dpad_move_switch_audio">D-pad Move/Switch audio</string>
+    <string name="ok_add_channel">OK Add channel</string>
+    <string name="long_ok_clear_screen">Long OK Clear screen</string>
+    <string name="back_exit_to_single">Back Exit to single</string>
+    <string name="screen_number">Screen %d</string>
+    <string name="screen_activated">Screen %d activated</string>
+    <string name="screen_cleared">Screen %d cleared</string>
+    <string name="press_ok_to_add_channel">Press OK to add channel</string>
+    <string name="playback_failed">Playback failed</string>
+    <string name="all_channels">All Channels</string>
+    <string name="channel_count">%d channels</string>
+    <string name="exit_multi_screen">Exit Multi-screen</string>
+    <string name="currently_playing">Currently playing: %s</string>
+    <string name="continue_playing">Continue</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+</resources>
