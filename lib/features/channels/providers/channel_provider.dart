@@ -33,10 +33,10 @@ class ChannelProvider extends ChangeNotifier {
   Future<void> loadChannels(int playlistId) async {
     ServiceLocator.log.i('Loading playlist channels: $playlistId', tag: 'ChannelProvider');
     final startTime = DateTime.now();
-    
+
     _isLoading = true;
     _error = null;
-    notifyListeners();
+    Future.microtask(notifyListeners);
 
     try {
       final results = await ServiceLocator.database.query(
@@ -50,7 +50,7 @@ class ChannelProvider extends ChangeNotifier {
       ServiceLocator.log.d('Loaded ${_channels.length} channels', tag: 'ChannelProvider');
 
       _updateGroups();
-      
+
       final loadTime = DateTime.now().difference(startTime).inMilliseconds;
       ServiceLocator.log.i('Channel loading completed, time taken: ${loadTime}ms', tag: 'ChannelProvider');
       _error = null;

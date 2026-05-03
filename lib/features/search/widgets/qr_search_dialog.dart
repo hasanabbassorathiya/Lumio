@@ -81,77 +81,91 @@ class _QrSearchDialogState extends State<QrSearchDialog> {
     
     return Dialog(
       backgroundColor: AppTheme.getSurfaceColor(context),
-      insetPadding: EdgeInsets.zero,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: isMobile ? null : 520,
-          constraints: isMobile ? const BoxConstraints(maxWidth: 400) : null,
-          decoration: BoxDecoration(
-            color: AppTheme.getSurfaceColor(context),
-          ),
-          padding: EdgeInsets.all(isMobile ? 16 : 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withAlpha(51),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.qr_code_scanner_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 22,
-                    ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Container(
+        width: isMobile ? null : 520,
+        constraints: isMobile ? const BoxConstraints(maxWidth: 400) : null,
+        decoration: BoxDecoration(
+          color: AppTheme.getSurfaceColor(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+        ),
+        padding: EdgeInsets.all(isMobile ? 20 : 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Title
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      AppStrings.of(context)?.scanToSearch ?? 'Scan to Search',
-                      style: TextStyle(
-                        color: AppTheme.getTextPrimary(context),
-                        fontSize: isMobile ? 16 : 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Content
-              if (_isLoading) _buildLoadingState() else if (_error != null) _buildErrorState() else if (_isServerRunning) _buildQrCodeState(isMobile),
-
-              const SizedBox(height: 20),
-
-              // Close button
-              TVFocusable(
-                autofocus: true,
-                onSelect: () => Navigator.of(context).pop(),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.getTextSecondary(context),
-                      side: BorderSide(color: AppTheme.getCardColor(context)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(AppStrings.of(context)?.close ?? 'Close'),
+                  child: Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: AppTheme.getPrimaryColor(context),
+                    size: 26,
                   ),
                 ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    AppStrings.of(context)?.scanToSearch.toUpperCase() ?? 'SCAN TO SEARCH',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 16 : 20,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Content
+            if (_isLoading) _buildLoadingState() else if (_error != null) _buildErrorState() else if (_isServerRunning) _buildQrCodeState(isMobile),
+
+            const SizedBox(height: 24),
+
+            // Close button
+            TVFocusable(
+              autofocus: true,
+              showFocusBorder: false,
+              onSelect: () => Navigator.of(context).pop(),
+              builder: (context, isFocused, child) {
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: child,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    AppStrings.of(context)?.close.toUpperCase() ?? 'CLOSE',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isFocused ? Colors.black : Colors.white60,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                      letterSpacing: 0.5,
+                    ),
+                  );
+                }),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

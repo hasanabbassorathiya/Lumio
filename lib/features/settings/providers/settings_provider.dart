@@ -68,14 +68,14 @@ class SettingsProvider extends ChangeNotifier {
   bool _showNetworkSpeed = true; // Display network speed by default
   bool _showVideoInfo = true; // Display resolution and bitrate by default
   String _progressBarMode = 'auto'; // Progress bar display mode: auto, always, never
-  bool _enableMultiScreen = true; // Multi-screen enabled by default
+  bool _enableMultiScreen = false; // Multi-screen disabled by default
   int _defaultScreenPosition = 1; // Default playback position (top-left)
   int _activeScreenIndex = 0; // Current active window index
   String _lastPlayMode = 'single'; // Last playback mode: 'single' or 'multi'
   List<int?> _lastMultiScreenChannels = [null, null, null, null]; // Multi-screen channel ID list
   bool _showMultiScreenChannelName = false; // Whether to show channel name in multi-screen playback (default off)
-  String _darkColorScheme = 'ocean'; // Dark mode color scheme (default ocean)
-  String _lightColorScheme = 'sky'; // Light mode color scheme (default sky)
+  String _darkColorScheme = 'lumio'; // Dark mode color scheme (default lumio)
+  String _lightColorScheme = 'lumio-light'; // Light mode color scheme (default lumio-light)
   String _fontFamily = 'Arial'; // Font setting (default Arial, English environment)
   bool _simpleMenu = true; // Whether to use simple menu bar (no expansion) - default enabled
   String _logLevel = 'off'; // Log level: debug, release, off - default off
@@ -188,8 +188,8 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     // Load color scheme settings
-    _darkColorScheme = prefs.getString(_keyDarkColorScheme) ?? 'ocean';
-    _lightColorScheme = prefs.getString(_keyLightColorScheme) ?? 'sky';
+    _darkColorScheme = prefs.getString(_keyDarkColorScheme) ?? 'lumio';
+    _lightColorScheme = prefs.getString(_keyLightColorScheme) ?? 'lumio-light';
 
     // Load font settings
     _fontFamily = prefs.getString(_keyFontFamily) ?? 'System';
@@ -607,8 +607,8 @@ class SettingsProvider extends ChangeNotifier {
     _enableMultiScreen = true;
     _defaultScreenPosition = 1;
     _activeScreenIndex = 0;
-    _darkColorScheme = 'ocean';
-    _lightColorScheme = 'sky';
+    _darkColorScheme = 'lumio';
+    _lightColorScheme = 'lumio-light';
     _fontFamily = 'Arial';
 
     await _saveSettings();

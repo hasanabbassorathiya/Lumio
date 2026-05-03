@@ -124,9 +124,9 @@ class LogService {
         await logDir.create(recursive: true);
       }
 
-      // Log file name: lotus_iptv_YYYYMMDD.log
+      // Log file name: lumio_iptv_YYYYMMDD.log
       final dateStr = DateFormat('yyyyMMdd').format(DateTime.now());
-      return path.join(logDir.path, 'lotus_iptv_$dateStr.log');
+      return path.join(logDir.path, 'lumio_iptv_$dateStr.log');
     } catch (e) {
       debugPrint('LogService: Failed to get log path - $e');
       return null;
@@ -310,7 +310,7 @@ class LogService {
       // Merge all log files
       final buffer = StringBuffer();
       buffer.writeln('========================================');
-      buffer.writeln('Lotus IPTV Log Export');
+      buffer.writeln('Lumio IPTV Log Export');
       buffer.writeln('Export time: ${DateTime.now()}');
       buffer.writeln('========================================\n');
 

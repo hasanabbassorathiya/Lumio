@@ -1,0 +1,65 @@
+lib/features/channels/screens/channels_screen.dart:      return Scaffold(
+lib/features/channels/screens/channels_screen.dart:    // Embedded mode does not use Scaffold, return content directly
+lib/features/channels/screens/channels_screen.dart:    return Scaffold(
+lib/features/channels/screens/channels_screen.dart:                          onPressed: () => Scaffold.of(context).openDrawer(),
+lib/features/channels/screens/channels_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:    ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+lib/features/channels/screens/channels_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:          ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:          ScaffoldMessenger.of(context).showSnackBar(
+lib/features/channels/screens/channels_screen.dart:                      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/epg/screens/epg_screen.dart:    return Scaffold(
+lib/features/favorites/screens/favorites_screen.dart:      return Scaffold(
+lib/features/favorites/screens/favorites_screen.dart:    // 嵌入模式不使用Scaffold
+lib/features/favorites/screens/favorites_screen.dart:    return Scaffold(
+lib/features/favorites/screens/favorites_screen.dart:                      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/favorites/screens/favorites_screen.dart:                  ScaffoldMessenger.of(context).showSnackBar(
+lib/features/home/screens/home_screen.dart:      return Scaffold(
+lib/features/home/screens/home_screen.dart:    return Scaffold(
+lib/features/home/screens/home_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/home/screens/home_screen.dart:    ScaffoldMessenger.of(context).showSnackBar(
+lib/features/home/screens/home_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/home/screens/home_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/player/screens/player_screen.dart:        ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:      final scaffoldMessenger = ScaffoldMessenger.of(context);
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+lib/features/player/screens/player_screen.dart:            ScaffoldMessenger.of(context).showSnackBar(
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:      ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:            ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:      child: Scaffold(
+lib/features/player/screens/player_screen.dart:              ScaffoldMessenger.of(context).clearSnackBars();
+lib/features/player/screens/player_screen.dart:                      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_list_screen.dart:      return Scaffold(
+lib/features/playlist/screens/playlist_list_screen.dart:    return Scaffold(
+lib/features/playlist/screens/playlist_list_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_list_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_list_screen.dart:                  ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:            Scaffold(
+lib/features/playlist/screens/playlist_manager_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:          ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:      ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:            ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:            ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:          ScaffoldMessenger.of(context).showSnackBar(
+lib/features/playlist/screens/playlist_manager_screen.dart:        ScaffoldMessenger.of(context).showSnackBar(
+lib/features/search/screens/search_screen.dart:      return Scaffold(
+lib/features/search/screens/search_screen.dart:    // Embedded mode does not use Scaffold
+lib/features/search/screens/search_screen.dart:    return Scaffold(
+lib/features/settings/screens/settings_screen.dart:    ScaffoldMessenger.of(context).showSnackBar(
+lib/features/settings/screens/settings_screen.dart:    ScaffoldMessenger.of(context).showSnackBar(
+lib/features/settings/screens/settings_screen.dart:      return Scaffold(
+lib/features/settings/screens/settings_screen.dart:    // Embedded mode does not use Scaffold
+lib/features/settings/screens/settings_screen.dart:    return Scaffold(
+lib/features/splash/screens/splash_screen.dart:    return Scaffold(

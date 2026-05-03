@@ -13,8 +13,9 @@ import '../../../core/widgets/tv_focusable.dart';
 import '../../../core/platform/platform_detector.dart';
 import '../../../core/platform/native_player_channel.dart';
 import '../../../core/platform/windows_pip_channel.dart';
-import '../../../core/platform/windows_fullscreen_native.dart';
+import '../../../core/platform/fullscreen_service.dart';
 import '../../../core/models/channel.dart';
+import '../../../core/widgets/channel_logo_widget.dart';
 import '../providers/player_provider.dart';
 import '../../favorites/providers/favorites_provider.dart';
 import '../../channels/providers/channel_provider.dart';
@@ -592,7 +593,7 @@ class _PlayerScreenState extends State<PlayerScreen>
 
     // If in full-screen mode, exit full-screen using native API
     if (_isFullScreen && PlatformDetector.isWindows) {
-      final success = WindowsFullscreenNative.exitFullScreen();
+      final success = FullscreenService.exitFullScreen();
       if (!success) {
         ServiceLocator.log
             .d('Native exitFullScreen failed in dispose, using window_manager');
@@ -866,22 +867,27 @@ class _PlayerScreenState extends State<PlayerScreen>
 
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(180),
-          borderRadius: BorderRadius.circular(12),
+          color: AppTheme.getSurfaceColor(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 40)
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 36),
-            const SizedBox(height: 8),
+            Icon(icon, color: AppTheme.getPrimaryColor(context), size: 48),
+            const SizedBox(height: 16),
             Text(
-              label,
+              label.toUpperCase(),
               style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5),
             ),
           ],
         ),
@@ -1273,7 +1279,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 4, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.8),
+                              color: AppTheme.errorColor.withOpacity(0.8),
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: Text(
@@ -1320,36 +1326,44 @@ class _PlayerScreenState extends State<PlayerScreen>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Speed display - green (TV side only, not shown on Windows)
+                              // Speed display - green
                               if (settings.showNetworkSpeed &&
                                   player.downloadSpeed > 0 &&
                                   PlatformDetector.isTV)
                                 Container(
-                                  margin: const EdgeInsets.only(left: 6),
+                                  margin: const EdgeInsets.only(left: 8),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(4),
+                                    color: AppTheme.successColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10)
+                                    ],
                                   ),
                                   child: Text(
-                                    _formatSpeed(player.downloadSpeed),
+                                    _formatSpeed(player.downloadSpeed).toUpperCase(),
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
                                     ),
                                   ),
                                 ),
-                              // Time display - black
+                              // Time display - dark
                               if (settings.showClock)
                                 Container(
-                                  margin: const EdgeInsets.only(left: 6),
+                                  margin: const EdgeInsets.only(left: 8),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(4),
+                                    color: AppTheme.getSurfaceColor(context),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10)
+                                    ],
                                   ),
                                   child: StreamBuilder(
                                     stream: Stream.periodic(
@@ -1361,7 +1375,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 11,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.0,
                                         ),
                                       );
                                     },
@@ -1370,19 +1385,23 @@ class _PlayerScreenState extends State<PlayerScreen>
                               // FPS display - red
                               if (settings.showFps && fps > 0)
                                 Container(
-                                  margin: const EdgeInsets.only(left: 6),
+                                  margin: const EdgeInsets.only(left: 8),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.red.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(4),
+                                    color: AppTheme.errorColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10)
+                                    ],
                                   ),
                                   child: Text(
                                     '${fps.toStringAsFixed(0)} FPS',
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
                                     ),
                                   ),
                                 ),
@@ -1391,19 +1410,23 @@ class _PlayerScreenState extends State<PlayerScreen>
                                   player.videoWidth > 0 &&
                                   player.videoHeight > 0)
                                 Container(
-                                  margin: const EdgeInsets.only(left: 6),
+                                  margin: const EdgeInsets.only(left: 8),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(4),
+                                    color: AppTheme.getPrimaryColor(context),
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10)
+                                    ],
                                   ),
                                   child: Text(
-                                    '${player.videoWidth}x${player.videoHeight}',
+                                    '${player.videoWidth}X${player.videoHeight}',
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
                                     ),
                                   ),
                                 ),
@@ -1624,8 +1647,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                         onTap: provider.togglePlayPause,
                         child: Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            gradient: AppTheme.lotusGradient,
+                          decoration: BoxDecoration(
+                            color: AppTheme.getPrimaryColor(context),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -1656,18 +1679,7 @@ class _PlayerScreenState extends State<PlayerScreen>
           right: 0,
           height: 160,
           child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xCC000000), // 80% black
-                  Color(0x66000000), // 40% black
-                  Colors.transparent,
-                ],
-                stops: [0.0, 0.5, 1.0],
-              ),
-            ),
+            decoration: BoxDecoration(gradient: AppTheme.overlayGradientTop),
           ),
         ),
         // Bottom gradient mask
@@ -1677,18 +1689,7 @@ class _PlayerScreenState extends State<PlayerScreen>
           right: 0,
           height: 200,
           child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Color(0x80000000), // 50% black
-                  Color(0xE6000000), // 90% black
-                ],
-                stops: [0.0, 0.4, 1.0],
-              ),
-            ),
+            decoration: BoxDecoration(gradient: AppTheme.overlayGradientBottom),
           ),
         ),
         // Content
@@ -1723,7 +1724,7 @@ class _PlayerScreenState extends State<PlayerScreen>
               // If in full-screen state, exit full-screen first - using native API
               if (_isFullScreen && PlatformDetector.isWindows) {
                 _isFullScreen = false;
-                final success = WindowsFullscreenNative.exitFullScreen();
+                final success = FullscreenService.exitFullScreen();
                 if (!success) {
                   // If native API fails, fallback to window_manager
                   unawaited(windowManager.setFullScreen(false));
@@ -1737,28 +1738,28 @@ class _PlayerScreenState extends State<PlayerScreen>
                 Navigator.of(context).pop();
               }
             },
-            focusScale: 1.0,
+            focusScale: 1.1,
             showFocusBorder: false,
             builder: (context, isFocused, child) {
-              return Container(
-                padding: const EdgeInsets.all(8),
+              return AnimatedContainer(
+                duration: AppTheme.animationFast,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isFocused
-                      ? AppTheme.getPrimaryColor(context)
-                      : const Color(0x33FFFFFF),
-                  borderRadius: BorderRadius.circular(10),
+                  color: isFocused ? Colors.white : Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isFocused
-                        ? AppTheme.getPrimaryColor(context)
-                        : const Color(0x1AFFFFFF),
-                    width: isFocused ? 2 : 1,
+                    color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                    width: 2.0,
                   ),
                 ),
                 child: child,
               );
             },
-            child: const Icon(Icons.arrow_back_rounded,
-                color: Colors.white, size: 18),
+            child: Builder(builder: (context) {
+              final isFocused = Focus.of(context).hasFocus;
+              return Icon(Icons.arrow_back_rounded,
+                  color: isFocused ? Colors.black : Colors.white, size: 20);
+            }),
           ),
 
           const SizedBox(width: 16),
@@ -1790,7 +1791,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              gradient: AppTheme.getGradient(context),
+                              color: AppTheme.errorColor,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Row(
@@ -1840,10 +1841,15 @@ class _PlayerScreenState extends State<PlayerScreen>
                         ],
                         // Video info
                         if (provider.videoInfo.isNotEmpty)
-                          Text(
-                            provider.videoInfo,
-                            style: const TextStyle(
-                                color: Color(0x99FFFFFF), fontSize: 11),
+                          Flexible(
+                            child: Text(
+                              provider.videoInfo,
+                              style: TextStyle(
+                                  color: AppTheme.getTextMuted(context),
+                                  fontSize: 11),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                       ],
                     ),
@@ -1889,21 +1895,17 @@ class _PlayerScreenState extends State<PlayerScreen>
                 focusScale: 1.0,
                 showFocusBorder: false,
                 builder: (context, isFocused, child) {
-                  return Container(
-                    padding: const EdgeInsets.all(8),
+                  return AnimatedContainer(
+                    duration: AppTheme.animationFast,
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      gradient: isFav ? AppTheme.getGradient(context) : null,
-                      color: isFav
-                          ? null
-                          : (isFocused
-                              ? AppTheme.getPrimaryColor(context)
-                              : const Color(0x33FFFFFF)),
+                      color: isFocused
+                          ? AppTheme.getPrimaryColor(context).withOpacity(0.15)
+                          : Colors.black.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isFocused
-                            ? AppTheme.getPrimaryColor(context)
-                            : const Color(0x1AFFFFFF),
-                        width: isFocused ? 2 : 1,
+                        color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white12,
+                        width: 1.5,
                       ),
                     ),
                     child: child,
@@ -1943,17 +1945,10 @@ class _PlayerScreenState extends State<PlayerScreen>
       builder: (context, isFocused, child) {
         return Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isFocused
-                ? AppTheme.getPrimaryColor(context)
-                : const Color(0x33FFFFFF),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isFocused
-                  ? AppTheme.getPrimaryColor(context)
-                  : const Color(0x1AFFFFFF),
-              width: isFocused ? 2 : 1,
-            ),
+          decoration: GlassDecoration(
+            context: context,
+            focused: isFocused,
+            radius: AppTheme.radiusSmall,
           ),
           child: child,
         );
@@ -1992,20 +1987,11 @@ class _PlayerScreenState extends State<PlayerScreen>
               builder: (context, isFocused, child) {
                 return Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    gradient: isInPip ? AppTheme.getGradient(context) : null,
-                    color: isInPip
-                        ? null
-                        : (isFocused
-                            ? AppTheme.getPrimaryColor(context)
-                            : const Color(0x33FFFFFF)),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isFocused
-                          ? AppTheme.getPrimaryColor(context)
-                          : const Color(0x1AFFFFFF),
-                      width: isFocused ? 2 : 1,
-                    ),
+                  decoration: GlassDecoration(
+                    context: context,
+                    focused: isFocused,
+                    radius: AppTheme.radiusSmall,
+                    glowColor: isInPip ? AppTheme.getPrimaryColor(context) : null,
                   ),
                   child: child,
                 );
@@ -2029,20 +2015,11 @@ class _PlayerScreenState extends State<PlayerScreen>
                 builder: (context, isFocused, child) {
                   return Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: isPinned ? AppTheme.getGradient(context) : null,
-                      color: isPinned
-                          ? null
-                          : (isFocused
-                              ? AppTheme.getPrimaryColor(context)
-                              : const Color(0x33FFFFFF)),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isFocused
-                            ? AppTheme.getPrimaryColor(context)
-                            : const Color(0x1AFFFFFF),
-                        width: isFocused ? 2 : 1,
-                      ),
+                    decoration: GlassDecoration(
+                      context: context,
+                      focused: isFocused,
+                      radius: AppTheme.radiusSmall,
+                      glowColor: isPinned ? AppTheme.getPrimaryColor(context) : null,
                     ),
                     child: child,
                   );
@@ -2079,13 +2056,17 @@ class _PlayerScreenState extends State<PlayerScreen>
 
                   if (currentProgram != null || nextProgram != null) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: 16),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                            horizontal: 20, vertical: 16),
                         decoration: BoxDecoration(
-                          color: const Color(0x33000000),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppTheme.getSurfaceColor(context),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20)
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2095,25 +2076,26 @@ class _PlayerScreenState extends State<PlayerScreen>
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: AppTheme.getPrimaryColor(context),
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                        AppStrings.of(context)?.nowPlaying ??
-                                            'Now playing',
+                                        AppStrings.of(context)?.nowPlaying.toUpperCase() ??
+                                            'NOW PLAYING',
                                         style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)),
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 0.5)),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       currentProgram.title,
                                       style: const TextStyle(
-                                          color: Colors.white, fontSize: 13),
+                                          color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -2122,46 +2104,40 @@ class _PlayerScreenState extends State<PlayerScreen>
                                     (AppStrings.of(context)?.endsInMinutes ??
                                             'Ends in {minutes} min')
                                         .replaceFirst('{minutes}',
-                                            '${currentProgram.remainingMinutes}'),
-                                    style: const TextStyle(
-                                        color: Color(0x99FFFFFF), fontSize: 11),
+                                            '${currentProgram.remainingMinutes}').toUpperCase(),
+                                    style: TextStyle(
+                                        color: AppTheme.getTextMuted(context), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5),
                                   ),
                                 ],
                               ),
                             if (nextProgram != null) ...[
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 10),
                               Row(
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppTheme.getPrimaryColor(context)
-                                              .withOpacity(0.7),
-                                          AppTheme.getSecondaryColor(context)
-                                              .withOpacity(0.7),
-                                        ],
-                                      ),
+                                      color: Colors.white.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                        AppStrings.of(context)?.upNext ??
-                                            'Up next',
+                                        AppStrings.of(context)?.upNext.toUpperCase() ??
+                                            'UP NEXT',
                                         style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600)),
+                                            color: Colors.white70,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 0.5)),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       nextProgram.title,
-                                      style: const TextStyle(
-                                          color: Colors.white,
+                                      style: TextStyle(
+                                          color: Colors.white.withOpacity(0.6),
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w500),
+                                          fontWeight: FontWeight.w700),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -2193,13 +2169,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                         // Progress bar (smaller height)
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
-                            trackHeight: 2, // Reduce track height
+                            trackHeight: 4,
                             thumbShape: const RoundSliderThumbShape(
-                                enabledThumbRadius: 5), // Reduce thumb radius
+                                enabledThumbRadius: 8),
                             overlayShape: const RoundSliderOverlayShape(
-                                overlayRadius: 10), // Reduce overlay radius
+                                overlayRadius: 16),
                             activeTrackColor: AppTheme.getPrimaryColor(context),
-                            inactiveTrackColor: const Color(0x33FFFFFF),
+                            inactiveTrackColor: AppTheme.glassBorderColor,
                             thumbColor: Colors.white,
                             overlayColor: AppTheme.getPrimaryColor(context)
                                 .withOpacity(0.3),
@@ -2223,13 +2199,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                             children: [
                               Text(
                                 _formatDuration(provider.position),
-                                style: const TextStyle(
-                                    color: Color(0x99FFFFFF), fontSize: 10),
+                                style: TextStyle(
+                                    color: AppTheme.getTextMuted(context), fontSize: 10),
                               ),
                               Text(
                                 _formatDuration(provider.duration),
-                                style: const TextStyle(
-                                    color: Color(0x99FFFFFF), fontSize: 10),
+                                style: TextStyle(
+                                    color: AppTheme.getTextMuted(context), fontSize: 10),
                               ),
                             ],
                           ),
@@ -2263,17 +2239,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                       builder: (context, isFocused, child) {
                         return Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isFocused
-                                ? AppTheme.getPrimaryColor(context)
-                                : const Color(0x33FFFFFF),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isFocused
-                                  ? AppTheme.getPrimaryColor(context)
-                                  : const Color(0x1AFFFFFF),
-                              width: isFocused ? 2 : 1,
-                            ),
+                          decoration: GlassDecoration(
+                            context: context,
+                            focused: isFocused,
+                            radius: AppTheme.radiusSmall,
                           ),
                           child: child,
                         );
@@ -2287,43 +2256,40 @@ class _PlayerScreenState extends State<PlayerScreen>
                       provider.currentChannel!.hasMultipleSources)
                     const SizedBox(width: 8),
 
-                  // Play/Pause - Lotus gradient button (smaller)
                   TVFocusable(
                     autofocus: true,
                     onSelect: provider.togglePlayPause,
-                    focusScale: 1.0,
+                    focusScale: 1.15,
                     showFocusBorder: false,
                     builder: (context, isFocused, child) {
-                      return Container(
-                        width: 44,
-                        height: 44,
+                      return AnimatedContainer(
+                        duration: AppTheme.animationFast,
+                        width: 64,
+                        height: 64,
                         decoration: BoxDecoration(
-                          gradient: AppTheme.getGradient(context),
+                          color: isFocused ? Colors.white : AppTheme.getPrimaryColor(context),
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color:
-                                isFocused ? Colors.white : Colors.transparent,
-                            width: 2,
-                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.getPrimaryColor(context)
-                                  .withAlpha(isFocused ? 100 : 50),
-                              blurRadius: isFocused ? 16 : 8,
-                              spreadRadius: isFocused ? 2 : 1,
+                              color: isFocused ? Colors.white.withOpacity(0.3) : AppTheme.getPrimaryColor(context).withOpacity(0.4),
+                              blurRadius: 24,
+                              spreadRadius: 2,
                             ),
                           ],
                         ),
                         child: child,
                       );
                     },
-                    child: Icon(
-                      provider.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+                    child: Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Icon(
+                        provider.isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        color: isFocused ? Colors.black : Colors.white,
+                        size: 32,
+                      );
+                    }),
                   ),
 
                   // Mobile side source toggle - Next source
@@ -2345,17 +2311,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                       builder: (context, isFocused, child) {
                         return Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isFocused
-                                ? AppTheme.getPrimaryColor(context)
-                                : const Color(0x33FFFFFF),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isFocused
-                                  ? AppTheme.getPrimaryColor(context)
-                                  : const Color(0x1AFFFFFF),
-                              width: isFocused ? 2 : 1,
-                            ),
+                          decoration: GlassDecoration(
+                            context: context,
+                            focused: isFocused,
+                            radius: AppTheme.radiusSmall,
                           ),
                           child: child,
                         );
@@ -2436,8 +2395,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                   child: Text(
                     AppStrings.of(context)?.playerHintTV ??
                         '↑↓ Switch Channel · ←→ Switch Source · Long press ← Category · OK Play/Pause · Long press OK Favorite',
-                    style:
-                        const TextStyle(color: Color(0x66FFFFFF), fontSize: 11),
+                    style: TextStyle(
+                        color: AppTheme.getTextMuted(context), fontSize: 11),
                   ),
                 ),
             ],
@@ -2461,17 +2420,11 @@ class _PlayerScreenState extends State<PlayerScreen>
           builder: (context, isFocused, child) {
             return Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : const Color(0x33FFFFFF),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isFocused
-                      ? AppTheme.getPrimaryColor(context)
-                      : const Color(0x1AFFFFFF),
-                  width: isFocused ? 2 : 1,
-                ),
+              decoration: GlassDecoration(
+                context: context,
+                focused: isFocused,
+                radius: AppTheme.radiusSmall,
+                glowColor: isFocused ? AppTheme.getPrimaryColor(context) : null,
               ),
               child: child,
             );
@@ -2526,14 +2479,14 @@ class _PlayerScreenState extends State<PlayerScreen>
     _lastFullScreenToggle = now;
 
     // Use native Windows API to toggle full-screen
-    final success = WindowsFullscreenNative.toggleFullScreen();
+    final success = FullscreenService.toggleFullScreen();
 
     if (success) {
       // Asynchronously update UI state
       Future.microtask(() {
         if (mounted) {
           setState(() {
-            _isFullScreen = WindowsFullscreenNative.isFullScreen();
+            _isFullScreen = FullscreenService.isFullScreen();
           });
         }
       });
@@ -2635,38 +2588,40 @@ class _PlayerScreenState extends State<PlayerScreen>
         children: [
           // Category list
           Container(
-            width: 180,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color(0xE6000000),
-                  Color(0x99000000),
-                  Colors.transparent,
-                ],
-                stops: [0.0, 0.7, 1.0],
+            width: 200,
+            decoration: BoxDecoration(
+              color: AppTheme.getSurfaceColor(context),
+              border: Border(
+                right: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 30,
+                  offset: const Offset(10, 0),
+                ),
+              ],
             ),
             child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
                     child: Text(
-                      AppStrings.of(context)?.categories ?? 'Categories',
+                      AppStrings.of(context)?.categories.toUpperCase() ?? 'CATEGORIES',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ),
                   Expanded(
                     child: ListView.builder(
                       controller: _categoryScrollController,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                       itemCount: groups.length,
                       itemBuilder: (context, index) {
                         final group = groups[index];
@@ -2678,22 +2633,24 @@ class _PlayerScreenState extends State<PlayerScreen>
                               _selectedCategory = group.name;
                             });
                           },
-                          focusScale: 1.0,
+                          focusScale: 1.05,
                           showFocusBorder: false,
                           builder: (context, isFocused, child) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                            final showHighlight = isFocused || isSelected;
+                            return AnimatedContainer(
+                              duration: AppTheme.animationFast,
+                              margin: const EdgeInsets.symmetric(vertical: 4),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+                                  horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
-                                gradient: (isFocused || isSelected)
-                                    ? AppTheme.getGradient(context)
-                                    : null,
-                                color: (isFocused || isSelected)
-                                    ? null
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
+                                color: isFocused
+                                    ? Colors.white
+                                    : (isSelected ? AppTheme.getPrimaryColor(context).withOpacity(0.2) : Colors.transparent),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isFocused ? Colors.white : (isSelected ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.transparent),
+                                  width: 2.0,
+                                ),
                               ),
                               child: child,
                             );
@@ -2701,19 +2658,35 @@ class _PlayerScreenState extends State<PlayerScreen>
                           child: Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  group.name,
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 13),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                child: Builder(builder: (context) {
+                                  final isFocused = Focus.of(context).hasFocus;
+                                  return Text(
+                                    group.name.toUpperCase(),
+                                    style: TextStyle(
+                                        color: isFocused ? Colors.black : (isSelected ? Colors.white : Colors.white60),
+                                        fontSize: 12,
+                                        fontWeight: (isFocused || isSelected) ? FontWeight.w900 : FontWeight.w700,
+                                        letterSpacing: 0.5),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                }),
                               ),
-                              Text(
-                                '${group.channelCount}',
-                                style: const TextStyle(
-                                    color: Color(0x99FFFFFF), fontSize: 11),
-                              ),
+                              Builder(builder: (context) {
+                                final isFocused = Focus.of(context).hasFocus;
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isFocused ? Colors.black.withOpacity(0.1) : Colors.white.withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${group.channelCount}',
+                                    style: TextStyle(
+                                        color: isFocused ? Colors.black54 : Colors.white38, fontSize: 10, fontWeight: FontWeight.w900),
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                         );
@@ -2738,40 +2711,55 @@ class _PlayerScreenState extends State<PlayerScreen>
     final currentChannel = playerProvider.currentChannel;
 
     return Container(
-      width: 220,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            Color(0xCC000000),
-            Color(0x66000000),
-            Colors.transparent,
-          ],
-          stops: [0.0, 0.7, 1.0],
+      width: 240,
+      decoration: BoxDecoration(
+        color: AppTheme.getSurfaceColor(context),
+        border: Border(
+          right: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 30,
+            offset: const Offset(10, 0),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = null),
-                    child: const Icon(Icons.arrow_back_ios,
-                        color: Colors.white, size: 14),
+                  TVFocusable(
+                    onSelect: () => setState(() => _selectedCategory = null),
+                    focusScale: 1.1,
+                    showFocusBorder: false,
+                    builder: (context, isFocused, child) {
+                      return AnimatedContainer(
+                        duration: AppTheme.animationFast,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(Icons.arrow_back_ios_rounded,
+                            color: isFocused ? Colors.black : Colors.white, size: 14),
+                      );
+                    },
+                    child: const SizedBox.shrink(),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      _selectedCategory!,
+                      _selectedCategory!.toUpperCase(),
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -2783,7 +2771,7 @@ class _PlayerScreenState extends State<PlayerScreen>
             Expanded(
               child: ListView.builder(
                 controller: _channelScrollController,
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                 itemCount: channels.length,
                 itemBuilder: (context, index) {
                   final channel = channels[index];
@@ -2791,65 +2779,72 @@ class _PlayerScreenState extends State<PlayerScreen>
                   return TVFocusable(
                     autofocus: index == 0,
                     onSelect: () {
-                      // Save last played channel ID
                       final settingsProvider = context.read<SettingsProvider>();
                       if (settingsProvider.rememberLastChannel &&
                           channel.id != null) {
                         settingsProvider.setLastChannelId(channel.id);
                       }
-
-                      // Switch to this channel
                       playerProvider.playChannel(channel);
-                      // Close panel
                       setState(() {
                         _showCategoryPanel = false;
                         _selectedCategory = null;
                       });
                     },
-                    focusScale: 1.0,
+                    focusScale: 1.05,
                     showFocusBorder: false,
                     builder: (context, isFocused, child) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
+                      return AnimatedContainer(
+                        duration: AppTheme.animationFast,
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          gradient:
-                              isFocused ? AppTheme.getGradient(context) : null,
-                          color: isPlaying && !isFocused
-                              ? const Color(0x33E91E63)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          color: isFocused
+                              ? Colors.white
+                              : (isPlaying ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : Colors.transparent),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isFocused ? Colors.white : (isPlaying ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.transparent),
+                            width: 2.0,
+                          ),
                         ),
                         child: child,
                       );
                     },
                     child: Row(
                       children: [
-                        if (isPlaying)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: Icon(Icons.play_arrow,
-                                color: AppTheme.getPrimaryColor(context),
-                                size: 16),
-                          ),
-                        Expanded(
-                          child: Text(
-                            channel.name,
-                            style: TextStyle(
-                              color: isPlaying
-                                  ? AppTheme.getPrimaryColor(context)
-                                  : Colors.white,
-                              fontSize: 13,
-                              fontWeight: isPlaying
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: ChannelLogoWidget(
+                            channel: channel,
+                            width: 40,
+                            height: 30,
+                            fit: BoxFit.cover,
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Builder(builder: (context) {
+                            final isFocused = Focus.of(context).hasFocus;
+                            return Text(
+                              channel.name,
+                              style: TextStyle(
+                                  color: isFocused ? Colors.black : Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: isFocused ? FontWeight.w900 : FontWeight.w600),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          }),
+                        ),
+                        if (isPlaying)
+                          Builder(builder: (context) {
+                            final isFocused = Focus.of(context).hasFocus;
+                            return Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: isFocused ? Colors.black54 : AppTheme.getPrimaryColor(context),
+                              size: 16,
+                            );
+                          }),
                       ],
                     ),
                   );

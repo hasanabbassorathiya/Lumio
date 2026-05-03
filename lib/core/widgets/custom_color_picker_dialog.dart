@@ -126,11 +126,17 @@ class _CustomColorPickerDialogState extends State<CustomColorPickerDialog> {
       },
       child: Dialog(
         backgroundColor: AppTheme.getSurfaceColor(context),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 550),
+          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+          decoration: BoxDecoration(
+            color: AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+          ),
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -141,41 +147,44 @@ class _CustomColorPickerDialogState extends State<CustomColorPickerDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      strings?.customColorPicker ?? 'Custom Color Picker',
-                      style: TextStyle(
-                        color: AppTheme.getTextPrimary(context),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      strings?.customColorPicker.toUpperCase() ?? 'CUSTOM COLOR PICKER',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
                       ),
                     ),
                   ),
                   TVFocusable(
                     onSelect: () => Navigator.pop(context),
-                    focusScale: 1.0,
+                    focusScale: 1.1,
                     showFocusBorder: false,
                     builder: (context, isFocused, child) {
-                      return Container(
+                      return AnimatedContainer(
+                        duration: AppTheme.animationFast,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isFocused 
-                              ? AppTheme.getFocusBackgroundColor(context) 
-                              : Colors.transparent,
+                          color: isFocused
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: child,
+                        child: Icon(Icons.close_rounded, size: 20, color: isFocused ? Colors.black : Colors.white60),
                       );
                     },
-                    child: IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () => Navigator.pop(context),
-                      color: AppTheme.getTextMuted(context),
-                    ),
+                    child: const SizedBox.shrink(),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
               
               // Current color preview
-              _buildColorPreview(),
+              GlassCard(
+                radius: AppTheme.radiusMedium,
+                padding: EdgeInsets.zero,
+                child: _buildColorPreview(),
+              ),
               const SizedBox(height: 24),
               
               // Color palette

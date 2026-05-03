@@ -1,29 +1,37 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'color_scheme_data.dart';
 import 'color_scheme_manager.dart';
 import '../services/service_locator.dart';
 
 class AppTheme {
-  // Lotus Theme - Brand Colors
-  // Lotus pink-purple gradient as primary color
-  static const Color primaryColor = Color(0xFFE91E8C); // Lotus Pink
-  static const Color primaryLight = Color(0xFFFF6EB4); // Light Pink
-  static const Color primaryDark = Color(0xFFAD1457); // Deep Pink
+  // ============ Netflix-Style Dark Theme Tokens ============
+  static const Color primaryColor = Color(0xFF6366F1); // Indigo
+  static const Color accentColor = Color(0xFF2DD4BF); // Teal
+  static const Color secondaryColor = Color(0xFF8B5CF6); // Violet
 
-  static const Color secondaryColor = Color(0xFF9C27B0); // Purple
-  static const Color accentColor = Color(0xFF00BCD4); // Cyan accent
+  // Spacing system
+  static const double spacingXSmall = 4.0;
+  static const double spacingSmall = 8.0;
+  static const double spacingMedium = 16.0;
+  static const double spacingLarge = 24.0;
 
-  // ============ Dark Theme Colors ============
-  static const Color backgroundColorDark = Color(0xFF000000); // Pure Black
-  static const Color surfaceColorDark = Color(0xFF0A0A0A); // Near Black
-  static const Color cardColorDark = Color(0xFF121212); // Dark Grey
-  static const Color cardHoverColorDark = Color(0xFF1A1A1A);
-  static const Color textPrimaryDark = Color(0xFFFFFFFF);
-  static const Color textSecondaryDark = Color(0xFFB0B0B0);
-  static const Color textMutedDark = Color(0xFF757575);
-  static const Color glassColorDark = Color(0x1AFFFFFF);
-  static const Color glassBorderColorDark = Color(0x33FFFFFF);
+  // Border radius - Modern high-level rounding
+  static const double radiusSmall = 8.0;
+  static const double radiusMedium = 12.0;
+  static const double radiusLarge = 16.0;
+  static const double radiusXLarge = 24.0;
+  static const double radiusPill = 100.0;
+
+  // Dark theme colors - Modern high-level style
+  static const Color glassColorDark = Color(0x0DFFFFFF); // Lower opacity
+  static const Color glassBorderColorDark = Color(0x1AFFFFFF);
+  static const Color backgroundColorDark = Color(0xFF000000); // Pure black for depth
+  static const Color surfaceColorDark = Color(0xFF0F0F0F); // Modern dark surface
+  static const Color cardColorDark = Color(0xFF161616); // Card color with depth
+  static const Color cardHoverColorDark = Color(0xFF1F1F1F);
+  static const Color textPrimaryDark = Color(0xFFFFFFFF); // High contrast
+  static const Color textSecondaryDark = Color(0xFFAAAAAA);
+  static const Color textMutedDark = Color(0xFF777777);
 
   // ============ Light Theme Colors ============
   static const Color backgroundColorLight = Color(0xFFF5F5F5); // Light Grey
@@ -50,7 +58,7 @@ class AppTheme {
   static const Color glassBorderColor = glassBorderColorDark;
   static const Color glassHighlight = Color(0x0DFFFFFF);
 
-  // Focus Colors (for TV navigation) - Lotus gradient
+  // Focus Colors (for TV navigation) - Lumio gradient
   static const Color focusColor = Color(0xFFE91E8C);
   static const Color focusBorderColor = Color(0xFFFF6EB4);
 
@@ -100,13 +108,22 @@ class AppTheme {
     return Theme.of(context).colorScheme.primary.withOpacity(isDark ? 0.1 : 0.15);
   }
 
-  // Lotus Gradient
-  static const LinearGradient lotusGradient = LinearGradient(
+  // Lumio Gradient
+  static const LinearGradient lumioGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFE91E8C), // Pink
-      Color(0xFF9C27B0), // Purple
+      primaryColor, // Indigo
+      secondaryColor, // Violet
+    ],
+  );
+
+  static const LinearGradient lumioSoftGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0x666366F1), // Indigo 40%
+      Color(0x668B5CF6), // Violet 40%
     ],
   );
   
@@ -144,15 +161,6 @@ class AppTheme {
       ],
     );
   }
-
-  static const LinearGradient lotusSoftGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0x66E91E8C), // Pink 40%
-      Color(0x669C27B0), // Purple 40%
-    ],
-  );
 
   // Card Gradient - Glassmorphism
 
@@ -248,18 +256,7 @@ class AppTheme {
     stops: [0.0, 1.0],
   );
 
-  // Border Radius
-  static const double radiusSmall = 8.0;
-  static const double radiusMedium = 12.0;
-  static const double radiusLarge = 16.0;
-  static const double radiusXLarge = 24.0;
-  static const double radiusPill = 50.0;
-
   // Spacing
-  static const double spacingXSmall = 4.0;
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 16.0;
-  static const double spacingLarge = 24.0;
   static const double spacingXLarge = 32.0;
 
   // Animation Durations
@@ -394,57 +391,62 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: textPrimaryDark, // High contrast button
+          foregroundColor: backgroundColorDark,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusPill),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryColor,
-          side: const BorderSide(color: primaryColor),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          foregroundColor: textPrimaryDark,
+          side: BorderSide(color: textPrimaryDark.withOpacity(0.3), width: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusPill),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: primaryColor,
+          foregroundColor: textPrimaryDark,
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: glassColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        fillColor: cardColorDark,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
-          borderSide: const BorderSide(color: glassBorderColor),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
-          borderSide: const BorderSide(color: glassBorderColor),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: primaryColor, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
-          borderSide: const BorderSide(color: errorColor),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: errorColor, width: 1),
         ),
-        hintStyle: const TextStyle(color: textMuted),
+        hintStyle: const TextStyle(color: textMutedDark, fontSize: 14),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: cardColor,
+        backgroundColor: surfaceColorDark,
+        elevation: 24,
+        shadowColor: Colors.black,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusLarge),
+          borderRadius: BorderRadius.circular(20.0),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -609,58 +611,62 @@ class AppTheme {
   }
 }
 
-// Glassmorphism Card Decoration
+// Premium Solid Card Decoration (High-Level Redesign)
 class GlassDecoration extends BoxDecoration {
   GlassDecoration({
     required BuildContext context,
     bool focused = false,
-    double borderRadius = AppTheme.radiusMedium,
+    double radius = AppTheme.radiusMedium,
     Color? glowColor,
   }) : super(
-          borderRadius: BorderRadius.circular(borderRadius),
-          color: AppTheme.glassColor,
+          borderRadius: BorderRadius.circular(radius),
+          color: AppTheme.getCardColor(context),
           border: Border.all(
-            color: focused ? (glowColor ?? AppTheme.getPrimaryColor(context)) : AppTheme.glassBorderColor,
-            width: focused ? 2 : 1,
+            color: focused
+                ? (glowColor ?? AppTheme.getPrimaryColor(context))
+                : Colors.white.withOpacity(0.05),
+            width: focused ? 2.5 : 1,
           ),
           boxShadow: focused
               ? [
                   BoxShadow(
-                    color: (glowColor ?? AppTheme.getPrimaryColor(context)).withAlpha(102),
-                    blurRadius: 20,
+                    color: AppTheme.getPrimaryColor(context).withOpacity(0.3),
+                    blurRadius: 24,
                     spreadRadius: 2,
+                    offset: const Offset(0, 8),
                   ),
                 ]
               : null,
         );
 }
 
-// TV-specific focus decoration with Lotus glow
+// TV-specific focus decoration - Netflix white border style
 class TVFocusDecoration extends BoxDecoration {
   TVFocusDecoration({required BuildContext context, bool focused = false})
       : super(
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           border: Border.all(
-            color: focused ? AppTheme.getPrimaryColor(context) : Colors.transparent,
-            width: focused ? 3 : 0,
+            color: focused ? Colors.white : Colors.transparent,
+            width: focused ? 2.5 : 0,
           ),
           boxShadow: focused
               ? [
                   BoxShadow(
-                    color: AppTheme.getPrimaryColor(context).withAlpha(102),
-                    blurRadius: 20,
-                    spreadRadius: 4,
+                    color: Colors.black.withAlpha(180),
+                    blurRadius: 24,
+                    spreadRadius: 6,
+                    offset: const Offset(0, 12),
                   ),
                 ]
               : null,
         );
 }
 
-// Glass Card Widget
+// Netflix-style Card Widget
 class GlassCard extends StatelessWidget {
   final Widget child;
   final bool focused;
-  final double borderRadius;
+  final double radius;
   final EdgeInsetsGeometry? padding;
   final Color? glowColor;
 
@@ -668,28 +674,26 @@ class GlassCard extends StatelessWidget {
     super.key,
     required this.child,
     this.focused = false,
-    this.borderRadius = AppTheme.radiusMedium,
+    this.radius = AppTheme.radiusMedium,
     this.padding,
     this.glowColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: AnimatedContainer(
-          duration: AppTheme.animationFast,
-          decoration: GlassDecoration(
-            context: context,
-            focused: focused,
-            borderRadius: borderRadius,
-            glowColor: glowColor,
-          ),
-          padding: padding,
-          child: child,
+    return AnimatedScale(
+      scale: focused ? 1.05 : 1.0,
+      duration: AppTheme.animationFast,
+      child: AnimatedContainer(
+        duration: AppTheme.animationFast,
+        decoration: GlassDecoration(
+          context: context,
+          focused: focused,
+          radius: radius,
+          glowColor: glowColor,
         ),
+        padding: padding,
+        child: child,
       ),
     );
   }
@@ -785,51 +789,58 @@ extension AppThemeDynamic on AppTheme {
           backgroundColor: scheme.primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: scheme.primaryColor,
-          side: BorderSide(color: scheme.primaryColor),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
+          foregroundColor: AppTheme.textPrimaryDark,
+          side: BorderSide(color: AppTheme.textPrimaryDark.withOpacity(0.3), width: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: scheme.primaryColor,
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppTheme.glassColorDark,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        fillColor: AppTheme.cardColorDark,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: const BorderSide(color: AppTheme.glassBorderColorDark),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: const BorderSide(color: AppTheme.glassBorderColorDark),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: BorderSide(color: scheme.primaryColor, width: 2),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: scheme.primaryColor, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          borderSide: const BorderSide(color: AppTheme.errorColor),
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: AppTheme.errorColor, width: 1),
         ),
-        hintStyle: const TextStyle(color: AppTheme.textMutedDark),
+        hintStyle: const TextStyle(color: AppTheme.textMutedDark, fontSize: 14),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: AppTheme.cardColorDark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLarge)),
-        elevation: 8,
-        shadowColor: Colors.black54,
+        backgroundColor: AppTheme.surfaceColorDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        elevation: 24,
+        shadowColor: Colors.black,
       ),
       listTileTheme: ListTileThemeData(
         selectedTileColor: scheme.primaryColor.withOpacity(0.1),
@@ -853,10 +864,24 @@ extension AppThemeDynamic on AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primaryColor),
       sliderTheme: SliderThemeData(
         activeTrackColor: scheme.primaryColor,
-        inactiveTrackColor: AppTheme.glassColorDark,
-        thumbColor: scheme.primaryColor,
-        overlayColor: scheme.primaryColor.withAlpha(51),
-        trackHeight: 4,
+        inactiveTrackColor: Colors.white.withOpacity(0.05),
+        thumbColor: Colors.white,
+        overlayColor: scheme.primaryColor.withOpacity(0.2),
+        trackHeight: 3,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7, elevation: 4),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return Colors.white70;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected))
+            return scheme.primaryColor.withOpacity(0.6);
+          return Colors.white.withOpacity(0.1);
+        }),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     );
   }
@@ -1003,10 +1028,23 @@ extension AppThemeDynamic on AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primaryColor),
       sliderTheme: SliderThemeData(
         activeTrackColor: scheme.primaryColor,
-        inactiveTrackColor: AppTheme.glassColorLight,
+        inactiveTrackColor: Colors.black.withOpacity(0.05),
         thumbColor: scheme.primaryColor,
-        overlayColor: scheme.primaryColor.withAlpha(51),
-        trackHeight: 4,
+        overlayColor: scheme.primaryColor.withOpacity(0.2),
+        trackHeight: 3,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7, elevation: 2),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return Colors.white70;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return scheme.primaryColor;
+          return Colors.black.withOpacity(0.1);
+        }),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     );
   }

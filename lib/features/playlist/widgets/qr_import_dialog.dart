@@ -232,81 +232,94 @@ class _QrImportDialogState extends State<QrImportDialog> {
     
     return Dialog(
       backgroundColor: AppTheme.getSurfaceColor(context),
-      insetPadding: EdgeInsets.zero,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(isLandscape ? 12 : 20),  // 横屏时圆角更小
-        child: Container(
-          width: isLandscape ? 420 : (isMobile ? null : 520),  // 横屏时宽度更小：480→420
-          constraints: isLandscape 
-              ? const BoxConstraints(maxHeight: 320)  // 横屏时限制高度：350→320
-              : (isMobile ? const BoxConstraints(maxWidth: 400) : null),
-          decoration: BoxDecoration(
-            color: AppTheme.getSurfaceColor(context),
-          ),
-          padding: EdgeInsets.all(isLandscape ? 10 : 20),  // 横屏10，竖屏恢复到20
-          child: Stack(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Title
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(isLandscape ? 6 : 8),  // 横屏时padding更小
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.getGradient(context),
-                          borderRadius: BorderRadius.circular(isLandscape ? 8 : 10),
-                        ),
-                        child: Icon(
-                          Icons.qr_code_scanner_rounded,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Container(
+        width: isLandscape ? 420 : (isMobile ? null : 520),
+        constraints: isLandscape
+            ? const BoxConstraints(maxHeight: 320)
+            : (isMobile ? const BoxConstraints(maxWidth: 400) : null),
+        decoration: BoxDecoration(
+          color: AppTheme.getSurfaceColor(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+        ),
+        padding: EdgeInsets.all(isLandscape ? 16 : 24),
+        child: Stack(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.qr_code_scanner_rounded,
+                        color: AppTheme.getPrimaryColor(context),
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        AppStrings.of(context)?.scanToImport.toUpperCase() ?? 'SCAN TO IMPORT',
+                        style: TextStyle(
                           color: Colors.white,
-                          size: isLandscape ? 18 : 22,  // 横屏时图标更小
+                          fontSize: isLandscape ? 14 : (isMobile ? 16 : 20),
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                      SizedBox(width: isLandscape ? 10 : 12),  // 横屏时间距更小
-                      Expanded(
-                        child: Text(
-                          AppStrings.of(context)?.scanToImport ?? 'Scan to Import Playlist',
-                          style: TextStyle(
-                            color: AppTheme.getTextPrimary(context),
-                            fontSize: isLandscape ? 13 : (isMobile ? 16 : 18),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 40), // Leave space for close button
-                    ],
-                  ),
-
-                  SizedBox(height: isLandscape ? 6 : 12),
-
-                  // Content
-                  if (_isLoading)
-                    _buildLoadingState(isLandscape)
-                  else if (_error != null)
-                    _buildErrorState(isLandscape)
-                  else if (_isServerRunning)
-                    _buildQrCodeState(isMobile, isLandscape),
-                ],
-              ),
-
-              // Top right close button
-              Positioned(
-                top: 0,
-                right: 0,
-                child: IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  iconSize: isLandscape ? 16 : 24,  // 横屏图标更小：20→16
-                  onPressed: () => Navigator.of(context).pop(false),
-                  color: AppTheme.getTextMuted(context),
-                  padding: EdgeInsets.all(isLandscape ? 2 : 8),  // 横屏padding更小：4→2
-                  constraints: const BoxConstraints(),
-                  tooltip: AppStrings.of(context)?.close ?? 'Close',
+                    ),
+                    const SizedBox(width: 40),
+                  ],
                 ),
+
+                const SizedBox(height: 24),
+
+                // Content
+                if (_isLoading)
+                  _buildLoadingState(isLandscape)
+                else if (_error != null)
+                  _buildErrorState(isLandscape)
+                else if (_isServerRunning)
+                  _buildQrCodeState(isMobile, isLandscape),
+              ],
+            ),
+
+            // Top right close button
+            Positioned(
+              top: 0,
+              right: 0,
+              child: TVFocusable(
+                onSelect: () => Navigator.of(context).pop(false),
+                focusScale: 1.1,
+                showFocusBorder: false,
+                builder: (context, isFocused, child) {
+                  return AnimatedContainer(
+                    duration: AppTheme.animationFast,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: isFocused ? Colors.black : Colors.white60,
+                      size: 20,
+                    ),
+                  );
+                },
+                child: const SizedBox.shrink(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -463,9 +476,9 @@ class _QrImportDialogState extends State<QrImportDialog> {
               padding: EdgeInsets.all(isLandscape ? 3 : 6),  // 3 in landscape, back to 6 in portrait
               decoration: BoxDecoration(
                 color: _receivedMessage!.contains('✓')
-                    ? Colors.green.withAlpha(51)
+                    ? AppTheme.successColor.withAlpha(51)
                     : _receivedMessage!.contains('✗')
-                        ? Colors.red.withAlpha(51)
+                        ? AppTheme.errorColor.withAlpha(51)
                         : AppTheme.primaryColor.withAlpha(51),
                 borderRadius: BorderRadius.circular(isLandscape ? 4 : 4),
               ),
@@ -486,9 +499,9 @@ class _QrImportDialogState extends State<QrImportDialog> {
                       _receivedMessage!,
                       style: TextStyle(
                         color: _receivedMessage!.contains('✓')
-                            ? Colors.green
+                            ? AppTheme.successColor
                             : _receivedMessage!.contains('✗')
-                                ? Colors.red
+                                ? AppTheme.errorColor
                                 : AppTheme.getTextPrimary(context),
                         fontWeight: FontWeight.w500,
                         fontSize: isLandscape ? 9 : 11,  // 9 in landscape, back to 11 in portrait
@@ -640,7 +653,7 @@ class _QrImportDialogState extends State<QrImportDialog> {
           width: isLandscape ? 14 : 18,  // 14 in landscape, back to 18 in portrait
           height: isLandscape ? 14 : 18,
           decoration: BoxDecoration(
-            gradient: AppTheme.getGradient(context),
+            color: AppTheme.getPrimaryColor(context),
             shape: BoxShape.circle,
           ),
           child: Center(

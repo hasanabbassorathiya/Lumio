@@ -60,12 +60,14 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
                       provider.isLoading ? null : () => Navigator.pop(context),
                 ),
               ),
-              body: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: _buildContent(provider),
+              body: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: _buildContent(provider),
+                    ),
                   ),
                 ),
               ),
@@ -76,9 +78,9 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: AppTheme.getSurfaceColor(context),
-                      borderRadius: BorderRadius.circular(20),
+                    decoration: GlassDecoration(
+                      context: context,
+                      radius: 20,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -126,7 +128,7 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              gradient: AppTheme.getGradient(context),
+              color: AppTheme.getPrimaryColor(context),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -168,16 +170,9 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(48),
-          decoration: BoxDecoration(
-            color: AppTheme.getSurfaceColor(context),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+          decoration: GlassDecoration(
+            context: context,
+            radius: 20,
           ),
           child: PlatformDetector.isTV
               ? _buildTVContent(provider)
@@ -187,10 +182,9 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.errorColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.errorColor.withOpacity(0.3)),
+            decoration: GlassDecoration(
+              context: context,
+              radius: 12,
             ),
             child: Row(
               children: [
@@ -322,37 +316,31 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
       builder: (context, child) {
         final isFocused = focusNode.hasFocus;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: AppTheme.animationFast,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            color: isFocused ? Colors.white.withOpacity(0.05) : AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFocused
-                  ? AppTheme.getPrimaryColor(context)
-                  : Colors.transparent,
-              width: 2,
+              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white.withOpacity(0.1),
+              width: 2.0,
             ),
           ),
           child: TextField(
             controller: controller,
             focusNode: focusNode,
             autofocus: autofocus,
-            style: TextStyle(
-                color: AppTheme.getTextPrimary(context), fontSize: 15),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: TextStyle(color: AppTheme.getTextMuted(context)),
-              prefixIcon: Icon(prefixIcon,
-                  color: isFocused
-                      ? AppTheme.getPrimaryColor(context)
-                      : AppTheme.getTextMuted(context)),
-              filled: true,
-              fillColor: AppTheme.getCardColor(context),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+              hintStyle: const TextStyle(color: Colors.white24, fontWeight: FontWeight.w500),
+              prefixIcon: Icon(
+                prefixIcon,
+                color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white24,
+                size: 22,
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              filled: false,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             ),
           ),
         );
@@ -368,36 +356,42 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
   }) {
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: 1.02,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.getPrimaryColor(context),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 0,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading)
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
-              )
-            else if (icon != null)
-              Icon(icon, size: 20),
-            if (icon != null || isLoading) const SizedBox(width: 8),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
+      focusScale: 1.05,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isFocused ? Colors.white : AppTheme.getPrimaryColor(context),
+              foregroundColor: isFocused ? Colors.black : Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (isLoading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                else if (icon != null)
+                  Icon(icon, size: 20),
+                if (icon != null || isLoading) const SizedBox(width: 8),
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -408,28 +402,38 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
   }) {
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: 1.02,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.getPrimaryColor(context),
-          side: BorderSide(
-              color: AppTheme.getPrimaryColor(context).withOpacity(0.5)),
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
+      focusScale: 1.05,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          child: OutlinedButton(
+            onPressed: onPressed,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isFocused ? Colors.white.withOpacity(0.1) : Colors.transparent,
+              foregroundColor: Colors.white,
+              side: BorderSide(
+                color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white12,
+                width: 1.5,
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white60),
+                const SizedBox(width: 8),
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -442,28 +446,29 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
   }) {
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: 1.02,
-      showFocusBorder: true,
+      focusScale: 1.05,
+      showFocusBorder: false,
       builder: (context, isFocused, child) {
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(20),
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient:
-                isPrimary && isFocused ? AppTheme.getGradient(context) : null,
-            color: isPrimary && !isFocused
-                ? AppTheme.getPrimaryColor(context)
-                : !isPrimary && isFocused
-                    ? AppTheme.getCardColor(context)
-                    : AppTheme.getCardColor(context).withOpacity(0.5),
+            color: isFocused
+                ? AppTheme.getPrimaryColor(context).withOpacity(0.15)
+                : AppTheme.getCardColor(context),
             borderRadius: BorderRadius.circular(16),
-            border: !isPrimary
-                ? Border.all(
-                    color: isFocused
-                        ? AppTheme.getPrimaryColor(context)
-                        : AppTheme.getPrimaryColor(context).withOpacity(0.3),
-                    width: 2,
-                  )
+            border: Border.all(
+              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white.withOpacity(0.05),
+              width: 2,
+            ),
+            boxShadow: isFocused
+                ? [
+                    BoxShadow(
+                      color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
                 : null,
           ),
           child: child,
@@ -472,52 +477,47 @@ class _PlaylistManagerScreenState extends State<PlaylistManagerScreen> {
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
-              color: isPrimary
-                  ? Colors.white.withOpacity(0.2)
-                  : AppTheme.getPrimaryColor(context).withOpacity(0.1),
+              color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color:
-                  isPrimary ? Colors.white : AppTheme.getPrimaryColor(context),
-              size: 28,
+              color: AppTheme.getPrimaryColor(context),
+              size: 32,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: TextStyle(
-                    color: isPrimary
-                        ? Colors.white
-                        : AppTheme.getTextPrimary(context),
+                  title.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    color: isPrimary
-                        ? Colors.white.withOpacity(0.8)
-                        : AppTheme.getTextSecondary(context),
+                  style: const TextStyle(
+                    color: Colors.white38,
                     fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
-          Icon(
+          const Icon(
             Icons.arrow_forward_ios_rounded,
-            color: isPrimary ? Colors.white : AppTheme.getTextMuted(context),
+            color: Colors.white12,
             size: 16,
           ),
         ],

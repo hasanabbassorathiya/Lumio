@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.28] - 2024-12-21
 
 ### Added
-- **Lotus Theme UI**: Pure black background with pink/purple gradient accents
+- **Lumio Theme UI**: Pure black background with indigo/violet gradient accents
 - **TV Sidebar Navigation**: Auto-collapsing sidebar (expands on focus)
 - **Native ExoPlayer**: Media3 ExoPlayer for Android TV 4K playback
 - Glassmorphism style cards for desktop/mobile

@@ -5,6 +5,7 @@ import '../models/app_update.dart';
 import '../services/update_service.dart';
 import '../widgets/update_dialog.dart';
 import '../services/service_locator.dart';
+import '../i18n/app_strings.dart';
 
 class UpdateManager {
   static final UpdateManager _instance = UpdateManager._internal();
@@ -12,7 +13,7 @@ class UpdateManager {
   UpdateManager._internal();
 
   final UpdateService _updateService = UpdateService();
-  
+
   // MethodChannel for installing APK on Android
   static const _installChannel = MethodChannel('com.flutteriptv/install');
 
@@ -41,10 +42,10 @@ class UpdateManager {
 
       // Show loading hint
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -52,11 +53,11 @@ class UpdateManager {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-              SizedBox(width: 16),
-              Text('Checking for updates...'),
+              const SizedBox(width: 16),
+              Text(AppStrings.of(context)!.checkingForUpdates),
             ],
           ),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
@@ -73,8 +74,8 @@ class UpdateManager {
       } else if (context.mounted) {
         ServiceLocator.log.d('UPDATE_MANAGER: Already latest version');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Already latest version'),
+          SnackBar(
+            content: Text(AppStrings.of(context)!.alreadyLatestVersion),
             backgroundColor: Colors.green,
           ),
         );
@@ -85,7 +86,7 @@ class UpdateManager {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Update check failed: $e'),
+            content: Text(AppStrings.of(context)!.updateCheckFailed.replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -132,7 +133,7 @@ class UpdateManager {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Update failed: $e'),
+            content: Text(AppStrings.of(context)!.updateFailed.replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -146,7 +147,7 @@ class UpdateManager {
     bool cancelled = false;
     void Function(void Function())? dialogSetState;
     BuildContext? dialogContext;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -156,7 +157,7 @@ class UpdateManager {
           builder: (context, setState) {
             dialogSetState = setState;
             return AlertDialog(
-              title: const Text('Downloading update'),
+              title: Text(AppStrings.of(context)!.downloadingUpdate),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -171,7 +172,7 @@ class UpdateManager {
                     cancelled = true;
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(AppStrings.of(context)!.cancel),
                 ),
               ],
             );
@@ -208,7 +209,7 @@ class UpdateManager {
       if (file != null) {
         ServiceLocator.log.d('UPDATE_MANAGER: Download complete, starting installation: ${file.path}');
         await _installApk(file.path);
-        
+
         // Delete cache file after installation starts (delayed to ensure installer has read the file)
         Future.delayed(const Duration(seconds: 5), () async {
           try {
@@ -231,7 +232,7 @@ class UpdateManager {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: $e'),
+            content: Text(AppStrings.of(context)!.downloadFailed.replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -256,7 +257,7 @@ class UpdateManager {
     bool dialogOpen = true;
     void Function(void Function())? dialogSetState;
     final navigatorState = Navigator.of(context);
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -265,7 +266,7 @@ class UpdateManager {
           builder: (_, setState) {
             dialogSetState = setState;
             return AlertDialog(
-              title: const Text('Downloading update'),
+              title: Text(AppStrings.of(context)!.downloadingUpdate),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -281,7 +282,7 @@ class UpdateManager {
                     dialogOpen = false;
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(AppStrings.of(context)!.cancel),
                 ),
               ],
             );
@@ -321,14 +322,14 @@ class UpdateManager {
 
       if (file != null) {
         ServiceLocator.log.d('UPDATE_MANAGER: Download complete: ${file.path}');
-        
+
         // Windows: Start installer
         if (context.mounted) {
           await showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: const Text('Download complete'),
-              content: const Text('Run the installer now?'),
+              title: Text(AppStrings.of(context)!.downloadComplete),
+              content: Text(AppStrings.of(context)!.runInstallerNowQuestion),
               actions: [
                 TextButton(
                   onPressed: () async {
@@ -343,7 +344,7 @@ class UpdateManager {
                       ServiceLocator.log.d('UPDATE_MANAGER: Failed to delete file: $e');
                     }
                   },
-                  child: const Text('Later'),
+                  child: Text(AppStrings.of(context)!.later),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -354,7 +355,7 @@ class UpdateManager {
                     // Exit current app
                     exit(0);
                   },
-                  child: const Text('Install Now'),
+                  child: Text(AppStrings.of(context)!.installNow),
                 ),
               ],
             ),
@@ -376,7 +377,7 @@ class UpdateManager {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: $e'),
+            content: Text(AppStrings.of(context)!.downloadFailed.replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );

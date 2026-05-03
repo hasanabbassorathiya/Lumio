@@ -14,7 +14,7 @@ class WindowTitleBar extends StatefulWidget {
 
   const WindowTitleBar({
     super.key,
-    this.title = 'Lotus IPTV',
+    this.title = 'Lumio IPTV',
     this.leading,
     this.actions,
   });
@@ -122,28 +122,10 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
               child: Container(
                 height: _barHeight,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: Theme.of(context).brightness == Brightness.dark
-                        ? [
-                            AppTheme.getBackgroundColor(context),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                            AppTheme.getBackgroundColor(context),
-                          ]
-                        : [
-                            AppTheme.getBackgroundColor(context),
-                            AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                          ],
+                  color: AppTheme.getSurfaceColor(context),
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Row(
                   children: [

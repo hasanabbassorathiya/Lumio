@@ -111,14 +111,13 @@ class _TVSidebarState extends State<TVSidebar> {
     // Decide whether to expand based on Simple Menu settings
     // Simple mode: Always collapsed, Non-simple mode: Always expanded
     final shouldExpand = !simpleMenu;
-    final width = shouldExpand ? 150.0 : 52.0;
+    final width = shouldExpand ? 160.0 : 64.0;
 
     return Row(
       children: [
         // Sidebar
         Focus(
           onFocusChange: (hasFocus) {
-            // Auto-focus current selected menu item when Sidebar gains focus
             if (hasFocus && widget.selectedIndex < _menuFocusNodes.length) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 final targetNode = _menuFocusNodes[widget.selectedIndex];
@@ -131,37 +130,29 @@ class _TVSidebarState extends State<TVSidebar> {
           child: Container(
             width: width,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: Theme.of(context).brightness == Brightness.dark
-                    ? [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                        AppTheme.getBackgroundColor(context),
-                      ]
-                    : [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                      ],
+              color: AppTheme.getBackgroundColor(context),
+              border: Border(
+                right: BorderSide(
+                  color: Colors.white.withOpacity(0.05),
+                  width: 1,
+                ),
               ),
             ),
             child: Column(
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 // Logo
                 _buildLogo(),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
                 // Nav Items
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: shouldExpand ? 6 : 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     itemCount: navItems.length,
                     itemBuilder: (context, index) => _buildNavItem(index, navItems[index]),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -173,32 +164,36 @@ class _TVSidebarState extends State<TVSidebar> {
   }
 
   Widget _buildLogo() {
-    // Real-time reading of Simple Menu settings
     final simpleMenu = context.watch<SettingsProvider>().simpleMenu;
     final shouldExpand = !simpleMenu;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: shouldExpand ? 10 : 8),
+      padding: EdgeInsets.symmetric(horizontal: shouldExpand ? 16 : 0),
       child: shouldExpand
           ? Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Image.asset('assets/icons/app_icon.png', width: 24, height: 24),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/icons/app_icon.png', width: 28, height: 28),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => AppTheme.getGradient(context).createShader(bounds),
-                    child: const Text('Lotus', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'LUMIO',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
             )
           : Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.asset('assets/icons/app_icon.png', width: 24, height: 24),
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset('assets/icons/app_icon.png', width: 28, height: 28),
               ),
             ),
     );
@@ -207,20 +202,16 @@ class _TVSidebarState extends State<TVSidebar> {
   Widget _buildNavItem(int index, _NavItem item) {
     final isSelected = widget.selectedIndex == index;
     final focusNode = index < _menuFocusNodes.length ? _menuFocusNodes[index] : null;
-    // Real-time reading of Simple Menu settings
     final simpleMenu = context.watch<SettingsProvider>().simpleMenu;
     final shouldExpand = !simpleMenu;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Focus(
         focusNode: focusNode,
         autofocus: index == widget.selectedIndex,
         onFocusChange: (hasFocus) {
-          // Force UI refresh
           if (mounted) setState(() {});
-
-          // Delayed navigation trigger
           if (hasFocus && index != widget.selectedIndex) {
             _navDelayTimer?.cancel();
             _pendingNavIndex = index;
@@ -230,42 +221,26 @@ class _TVSidebarState extends State<TVSidebar> {
               }
             });
           } else if (!hasFocus && _pendingNavIndex == index) {
-            // Cancel pending navigation on blur
             _navDelayTimer?.cancel();
             _pendingNavIndex = null;
           }
         },
         onKey: (node, event) {
           final key = event.logicalKey;
-
-          // Handle select key
           if (event is KeyDownEvent && (key == LogicalKeyboardKey.select || key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.space)) {
-            // Navigate immediately on manual confirm, cancel delay
             _navDelayTimer?.cancel();
             _pendingNavIndex = null;
             _onNavItemTap(index, item.route);
             return KeyEventResult.handled;
           }
-
-          // Handle right key
           if (event is KeyDownEvent && key == LogicalKeyboardKey.arrowRight && widget.onRight != null) {
-            // Cancel delayed navigation on right key
             _navDelayTimer?.cancel();
             _pendingNavIndex = null;
             widget.onRight!();
             return KeyEventResult.handled;
           }
-
-          // Prevent directional navigation at boundaries - handles both KeyDown and KeyUp
-          if (key == LogicalKeyboardKey.arrowUp && index == 0) {
-            // Prevent UP from first item
-            return KeyEventResult.handled;
-          }
-          if (key == LogicalKeyboardKey.arrowDown && index == 5) {
-            // Prevent DOWN from last item
-            return KeyEventResult.handled;
-          }
-
+          if (key == LogicalKeyboardKey.arrowUp && index == 0) return KeyEventResult.handled;
+          if (key == LogicalKeyboardKey.arrowDown && index == 5) return KeyEventResult.handled;
           return KeyEventResult.ignored;
         },
         child: MouseRegion(
@@ -274,42 +249,56 @@ class _TVSidebarState extends State<TVSidebar> {
             onTap: () => _onNavItemTap(index, item.route),
             child: Builder(
               builder: (context) {
-                // Directly check actual focus status of FocusNode
                 final isFocused = focusNode?.hasFocus ?? false;
-                // Highlight current selected item（using gradient background）
-                // Show highlight if focused but not selected
-                final showSelectedHighlight = isSelected;
-                final showFocusHighlight = isFocused && !isSelected;
 
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: shouldExpand ? 10 : 8, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: (showSelectedHighlight || showFocusHighlight) ? AppTheme.getGradient(context) : null,
-                    borderRadius: BorderRadius.circular(8),
-                    // Show border whenever focused
-                    border: isFocused
-                        ? Border.all(
-                            color: Colors.white.withOpacity(0.6),
-                            width: 2,
-                          )
-                        : null,
-                  ),
-                  child: shouldExpand
-                      ? Row(
-                          children: [
-                            Icon(item.icon, color: (showSelectedHighlight || showFocusHighlight) ? Colors.white : AppTheme.getTextMuted(context), size: 18),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(item.label,
+                return AnimatedScale(
+                  scale: isFocused ? 1.1 : 1.0,
+                  duration: AppTheme.animationFast,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: shouldExpand ? 12 : 8,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isFocused
+                          ? Colors.white
+                          : (isSelected ? AppTheme.getPrimaryColor(context).withOpacity(0.1) : Colors.transparent),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isFocused ? Colors.white : Colors.transparent,
+                        width: 2.0,
+                      ),
+                    ),
+                    child: shouldExpand
+                        ? Row(
+                            children: [
+                              Icon(
+                                item.icon,
+                                color: isFocused ? Colors.black : (isSelected ? AppTheme.getPrimaryColor(context) : Colors.white60),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  item.label.toUpperCase(),
                                   style: TextStyle(
-                                    color: (showSelectedHighlight || showFocusHighlight) ? Colors.white : AppTheme.getTextSecondary(context),
+                                    color: isFocused ? Colors.black : (isSelected ? Colors.white : Colors.white60),
                                     fontSize: 12,
-                                    fontWeight: (showSelectedHighlight || showFocusHighlight) ? FontWeight.w600 : FontWeight.normal,
-                                  )),
+                                    fontWeight: isFocused || isSelected ? FontWeight.w900 : FontWeight.w700,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Center(
+                            child: Icon(
+                              item.icon,
+                              color: isFocused ? Colors.black : (isSelected ? AppTheme.getPrimaryColor(context) : Colors.white60),
+                              size: 22,
                             ),
-                          ],
-                        )
-                      : Center(child: Icon(item.icon, color: (showSelectedHighlight || showFocusHighlight) ? Colors.white : (isSelected ? AppTheme.getPrimaryColor(context) : AppTheme.getTextMuted(context)), size: 18)),
+                          ),
+                  ),
                 );
               },
             ),

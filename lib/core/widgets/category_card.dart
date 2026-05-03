@@ -37,39 +37,80 @@ class CategoryCard extends StatelessWidget {
       focusScale: isTV ? 1.0 : 1.03,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           decoration: BoxDecoration(
-            gradient: isFocused ? LinearGradient(colors: [cardColor.withAlpha(180), cardColor.withAlpha(120)]) : LinearGradient(colors: [cardColor.withAlpha(60), cardColor.withAlpha(30)]),
-            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            color: isFocused
+                ? Colors.white
+                : AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
             border: Border.all(
-              color: isFocused ? AppTheme.getPrimaryColor(context).withAlpha(200) : AppTheme.getGlassBorderColor(context),
-              width: isFocused ? 2 : 1,
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 2.0,
             ),
+            boxShadow: isFocused
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
+                : null,
           ),
           child: child,
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(40),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              ),
-              child: Icon(icon, color: Colors.white, size: 20),
-            ),
-            const Spacer(),
+            Builder(builder: (context) {
+              final isFocused = Focus.of(context).hasFocus;
+              return AnimatedContainer(
+                duration: AppTheme.animationFast,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isFocused ? Colors.black.withOpacity(0.1) : AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: isFocused ? Colors.black : AppTheme.getPrimaryColor(context), size: 22),
+              );
+            }),
+            const SizedBox(height: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 3),
-                Text('$channelCount Channels', style: TextStyle(color: Colors.white.withAlpha(180), fontSize: 11)),
+                Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    name.toUpperCase(),
+                    style: TextStyle(
+                      color: isFocused ? Colors.black : Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                }),
+                const SizedBox(height: 4),
+                Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    '$channelCount CHANNELS',
+                    style: TextStyle(
+                      color: isFocused ? Colors.black54 : Colors.white38,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  );
+                }),
               ],
             ),
           ],

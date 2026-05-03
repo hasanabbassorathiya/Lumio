@@ -156,6 +156,14 @@ jobs:
           path: dist/
           retention-days: 5
 
+      - name: Distribute to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
+          groups: testers
+          file: dist/flutteriptv-Android-Mobile-arm64-v8a.apk
+
   # ============================================
   # Create GitHub Release
   # ============================================
@@ -214,7 +222,7 @@ jobs:
           fi
 
           cat > release_notes.md << EOF
-          ## 📺 Lotus IPTV ${VERSION}
+          ## 📺 Lumio IPTV ${VERSION}
 
           ### 📝 What's New
 

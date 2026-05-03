@@ -351,21 +351,7 @@ class _MultiScreenPlayerState extends State<MultiScreenPlayer> {
           Container(
             width: 200,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: Theme.of(context).brightness == Brightness.dark
-                    ? [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                        AppTheme.getBackgroundColor(context),
-                      ]
-                    : [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                      ],
-              ),
+              color: AppTheme.getSurfaceColor(context),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -457,21 +443,7 @@ class _MultiScreenPlayerState extends State<MultiScreenPlayer> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: Theme.of(context).brightness == Brightness.dark
-                      ? [
-                          AppTheme.getBackgroundColor(context),
-                          AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                          AppTheme.getBackgroundColor(context),
-                        ]
-                      : [
-                          AppTheme.getBackgroundColor(context),
-                          AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                          AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                        ],
-                ),
+                color: AppTheme.getBackgroundColor(context),
               ),
               child: _buildChannelGrid(
                   context, channelProvider, multiScreenProvider),
@@ -666,8 +638,8 @@ class _MultiScreenPlayerState extends State<MultiScreenPlayer> {
                   ),
                   child: Container(
                     color: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xFF0A0A0A)
-                        : const Color(0xFFB8B8B8),
+                        ? AppTheme.getSurfaceColor(context)
+                        : AppTheme.getCardColor(context),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(8),

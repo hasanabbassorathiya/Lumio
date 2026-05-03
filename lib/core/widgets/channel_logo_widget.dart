@@ -327,17 +327,19 @@ class _ChannelLogoWidgetState extends State<ChannelLogoWidget> {
       width: widget.width,
       height: widget.height,
       decoration: BoxDecoration(
+        color: const Color(0xFF141414), // Premium solid dark
         borderRadius: widget.borderRadius,
       ),
       child: Image.asset(
-        'assets/images/default_logo.png',
+        'assets/icons/app_icon.jpg',
         fit: BoxFit.contain,
+        opacity: const AlwaysStoppedAnimation(0.5), // Subtle branding
         errorBuilder: (context, error, stackTrace) {
           // If default image fails, show icon
           return Icon(
             Icons.tv,
             size: (widget.width ?? 48) * 0.5,
-            color: Colors.grey[600],
+            color: Colors.white10,
           );
         },
       ),

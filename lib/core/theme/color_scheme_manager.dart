@@ -12,21 +12,21 @@ class ColorSchemeManager {
   // ============ Dark Mode Color Scheme List ============
   static const List<ColorSchemeData> darkSchemes = [
     darkLumio,
-    darkOcean,
-    darkForest,
-    darkSunset,
-    darkLavender,
-    darkMidnight,
+    // darkOcean,
+    // darkForest,
+    // darkSunset,
+    // darkLavender,
+    // darkMidnight,
   ];
 
   // ============ Light Mode Color Scheme List ============
   static const List<ColorSchemeData> lightSchemes = [
     lightLumio,
-    lightSky,
-    lightSpring,
-    lightCoral,
-    lightViolet,
-    lightClassic,
+    // lightSky,
+    // lightSpring,
+    // lightCoral,
+    // lightViolet,
+    // lightClassic,
   ];
 
   /// Get dark mode color scheme by ID

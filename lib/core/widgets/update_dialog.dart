@@ -22,10 +22,11 @@ class UpdateDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: AppTheme.getSurfaceColor(context),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
       ),
-      child: Padding(
+      child: GlassCard(
         padding: const EdgeInsets.all(24),
+        radius: AppTheme.radiusLarge,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,12 +37,12 @@ class UpdateDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.system_update,
-                    color: AppTheme.primaryColor,
+                    color: AppTheme.getPrimaryColor(context),
                     size: 28,
                   ),
                 ),
@@ -52,16 +53,16 @@ class UpdateDialog extends StatelessWidget {
                     children: [
                       Text(
                         AppStrings.of(context)?.newVersionAvailable ?? 'New version available',
-                        style: const TextStyle(
-                          color: AppTheme.textPrimary,
+                        style: TextStyle(
+                          color: AppTheme.getTextPrimary(context),
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'v${update.version}',
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
+                        style: TextStyle(
+                          color: AppTheme.getPrimaryColor(context),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -77,8 +78,8 @@ class UpdateDialog extends StatelessWidget {
             // Release Notes
             Text(
               AppStrings.of(context)?.whatsNew ?? 'What\'s new',
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              style: TextStyle(
+                color: AppTheme.getTextPrimary(context),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -89,8 +90,8 @@ class UpdateDialog extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Text(
                   _formatReleaseNotes(update.releaseNotes),
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
+                  style: TextStyle(
+                    color: AppTheme.getTextSecondary(context),
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -107,17 +108,19 @@ class UpdateDialog extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppTheme.textMuted),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: Colors.white.withOpacity(0.1)),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: Text(
-                      AppStrings.of(context)?.updateLater ?? 'Update later',
+                      AppStrings.of(context)?.updateLater.toUpperCase() ?? 'LATER',
                       style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 16,
+                        color: Colors.white60,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -127,18 +130,20 @@ class UpdateDialog extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onUpdate,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 0,
                     ),
-                    child: Text(
-                      AppStrings.of(context)?.updateNow ?? 'Update now',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    child: const Text(
+                      'UPDATE NOW',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),

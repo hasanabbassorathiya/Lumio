@@ -32,23 +32,7 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: Theme.of(context).brightness == Brightness.dark
-                  ? [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                      AppTheme.getBackgroundColor(context),
-                    ]
-                  : [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                    ],
-            ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 2, // 直播源列表页
             child: content,
@@ -58,39 +42,19 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
     }
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
-          ),
-        ),
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      body: SafeArea(
         child: Column(
           children: [
-            // 手机端添加状态栏高度
-            if (PlatformDetector.isMobile)
-              SizedBox(height: MediaQuery.of(context).padding.top),
             AppBar(
               backgroundColor: Colors.transparent,
-              primary: false, // 禁用自动SafeArea padding
-              toolbarHeight: PlatformDetector.isMobile &&
-                      MediaQuery.of(context).size.width > 600
-                  ? 24.0
-                  : 56.0, // 横屏时进一步减小到24px
-              automaticallyImplyLeading: false, // 不显示返回按钮
+              elevation: 0,
+              centerTitle: true,
               title: Text(
                 AppStrings.of(context)?.playlistList ?? 'Playlist List',
                 style: TextStyle(
                   color: AppTheme.getTextPrimary(context),
-                  fontSize: PlatformDetector.isMobile &&
-                          MediaQuery.of(context).size.width > 600
-                      ? 14
-                      : 20, // 横屏时字体14px
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -220,38 +184,29 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
           favoritesProvider: context.read<FavoritesProvider>(),
         );
       },
-      focusScale: 1.02,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
+        final showHighlight = isFocused || isActive;
         return AnimatedContainer(
           duration: AppTheme.animationFast,
+          padding: EdgeInsets.all(isLandscape ? 8 : 14),
           decoration: BoxDecoration(
-            gradient: isActive
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.1),
-                    ],
-                  )
-                : null,
-            color: isActive ? null : AppTheme.getSurfaceColor(context),
-            borderRadius:
-                BorderRadius.circular(isLandscape ? 12 : 16), // 横屏时圆角更小
+            color: isFocused
+                ? Colors.white
+                : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : AppTheme.getSurfaceColor(context)),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFocused
-                  ? AppTheme.getPrimaryColor(context)
-                  : isActive
-                      ? AppTheme.getPrimaryColor(context).withOpacity(0.5)
-                      : Colors.transparent,
-              width: isFocused ? 2 : 1,
+              color: isFocused ? Colors.white : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.white.withOpacity(0.05)),
+              width: 2.0,
             ),
             boxShadow: isFocused
                 ? [
                     BoxShadow(
-                      color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                      blurRadius: 12,
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 10),
                     ),
                   ]
                 : null,
@@ -259,156 +214,155 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
           child: child,
         );
       },
-      child: Padding(
-        padding: EdgeInsets.all(isLandscape ? 6 : 10), // 横屏时减少padding
-        child: Row(
-          children: [
-            // Icon
-            Container(
-              width: isLandscape ? 36 : 48, // 横屏时图标容器更小
-              height: isLandscape ? 36 : 48, // 横屏时图标容器更小
+      child: Row(
+        children: [
+          // Icon - Modern sleek icon container
+          Builder(builder: (context) {
+            final isFocused = Focus.of(context).hasFocus;
+            return AnimatedContainer(
+              duration: AppTheme.animationFast,
+              width: isLandscape ? 44 : 56,
+              height: isLandscape ? 44 : 56,
               decoration: BoxDecoration(
-                color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                borderRadius:
-                    BorderRadius.circular(isLandscape ? 8 : 10), // 横屏时圆角更小
+                color: isFocused
+                    ? Colors.black.withOpacity(0.1)
+                    : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.2) : Colors.white.withOpacity(0.05)),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                playlist.isRemote
-                    ? Icons.cloud_outlined
-                    : Icons.folder_outlined,
-                color: AppTheme.getPrimaryColor(context),
-                size: isLandscape ? 18 : 24, // 横屏时图标更小
+                playlist.isRemote ? Icons.cloud_outlined : Icons.folder_outlined,
+                color: isFocused
+                    ? Colors.black
+                    : (isActive ? AppTheme.getPrimaryColor(context) : Colors.white70),
+                size: isLandscape ? 22 : 28,
               ),
-            ),
+            );
+          }),
 
-            SizedBox(width: isLandscape ? 10 : 16), // 横屏时减少间距
+          SizedBox(width: isLandscape ? 14 : 20),
 
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          playlist.name,
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Builder(builder: (context) {
+                        final isFocused = Focus.of(context).hasFocus;
+                        return Text(
+                          playlist.name.toUpperCase(),
                           style: TextStyle(
-                            color: AppTheme.getTextPrimary(context),
-                            fontSize: isLandscape ? 12 : 14, // 横屏时字体更小
-                            fontWeight: FontWeight.w600,
+                            color: isFocused ? Colors.black : Colors.white,
+                            fontSize: isLandscape ? 13 : 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (isActive)
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isLandscape ? 4 : 6, // 横屏时减少padding
-                            vertical: isLandscape ? 2 : 3, // 横屏时减少padding
-                          ),
+                        );
+                      }),
+                    ),
+                    if (isActive)
+                      Builder(builder: (context) {
+                        final isFocused = Focus.of(context).hasFocus;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppTheme.getPrimaryColor(context),
-                            borderRadius: BorderRadius.circular(
-                                isLandscape ? 4 : 6), // 横屏时圆角更小
+                            color: isFocused ? Colors.black.withOpacity(0.1) : AppTheme.getPrimaryColor(context),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            AppStrings.of(context)?.active ?? 'ACTIVE',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            'ACTIVE',
+                            style: TextStyle(
+                              color: isFocused ? Colors.black : Colors.white,
                               fontSize: 9,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${playlist.format} · ${playlist.isRemote ? 'URL' : (AppStrings.of(context)?.localFile ?? 'Local File')} · ${playlist.channelCount} ${AppStrings.of(context)?.channels ?? 'channels'}',
-                    style: TextStyle(
-                      color: AppTheme.getTextSecondary(context),
-                      fontSize: 11,
-                    ),
-                  ),
-                  if (playlist.lastUpdated != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      '${AppStrings.of(context)?.updated ?? 'Updated'}: ${_formatDate(playlist.lastUpdated!)}',
-                      style: TextStyle(
-                        color: AppTheme.getTextMuted(context),
-                        fontSize: 10,
-                      ),
-                    ),
+                        );
+                      }),
                   ],
-                ],
-              ),
-            ),
-
-            // Actions
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Copy URL Button (only for remote playlists)
-                if (playlist.isRemote && playlist.url != null) ...[
-                  TVFocusable(
-                    onSelect: () => _copyUrl(playlist.url!),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.getCardColor(context),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.copy_rounded,
-                        color: AppTheme.getTextSecondary(context),
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                ],
-
-                // Refresh Button
-                TVFocusable(
-                  onSelect: () => _refreshPlaylist(provider, playlist),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.refresh_rounded,
-                      color: AppTheme.getPrimaryColor(context),
-                      size: 20,
-                    ),
-                  ),
                 ),
-                const SizedBox(width: 6),
-
-                // Delete Button
-                TVFocusable(
-                  onSelect: () => _confirmDelete(provider, playlist),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.errorColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 4),
+                Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    '${playlist.format} · ${playlist.isRemote ? 'REMOTE' : 'LOCAL'} · ${playlist.channelCount} CHANNELS',
+                    style: TextStyle(
+                      color: isFocused ? Colors.black54 : Colors.white38,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
                     ),
-                    child: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: AppTheme.errorColor,
-                      size: 20,
-                    ),
-                  ),
-                ),
+                  );
+                }),
               ],
             ),
-          ],
-        ),
+          ),
+
+          // Actions
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Copy URL
+              if (playlist.isRemote && playlist.url != null)
+                _buildActionIconButton(
+                  icon: Icons.link_rounded,
+                  color: Colors.white60,
+                  onTap: () => _copyUrl(playlist.url!),
+                ),
+              const SizedBox(width: 8),
+              // Refresh
+              _buildActionIconButton(
+                icon: Icons.refresh_rounded,
+                color: AppTheme.getPrimaryColor(context),
+                onTap: () => _refreshPlaylist(provider, playlist),
+              ),
+              const SizedBox(width: 8),
+              // Delete
+              _buildActionIconButton(
+                icon: Icons.delete_outline_rounded,
+                color: AppTheme.errorColor,
+                onTap: () => _confirmDelete(provider, playlist),
+              ),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildActionIconButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isFocused ? color.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isFocused ? color : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: isFocused ? color : color.withOpacity(0.7),
+            size: 18,
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 

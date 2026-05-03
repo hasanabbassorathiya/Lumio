@@ -27,11 +27,13 @@ import '../../multi_screen/providers/multi_screen_provider.dart';
 class ChannelsScreen extends StatefulWidget {
   final String? groupName;
   final bool embedded; // Whether embedded in home bottom navigation
+  final bool forceShowBackButton; // New: force show back button for mobile
 
   const ChannelsScreen({
     super.key,
     this.groupName,
     this.embedded = false,
+    this.forceShowBackButton = false,
   });
 
   @override
@@ -123,23 +125,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: Theme.of(context).brightness == Brightness.dark
-                  ? [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                      AppTheme.getBackgroundColor(context),
-                    ]
-                  : [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                    ],
-            ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 1, // Channels page
             onRight: () {
@@ -159,10 +145,6 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
     if (widget.embedded) {
       final isMobile = PlatformDetector.isMobile;
       final isLandscape = isMobile && MediaQuery.of(context).size.width > 700;
-      final statusBarHeight =
-          isMobile ? MediaQuery.of(context).padding.top : 0.0;
-      final topPadding =
-          isMobile ? (statusBarHeight > 0 ? statusBarHeight - 15 : 0.0) : 0.0;
 
       return Stack(
         children: [
@@ -170,8 +152,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
           // Mobile embedded mode uses FAB to open categories
           Positioned(
             left: isLandscape ? 8 : 8, // Position in landscape
-            top: topPadding +
-                (isLandscape ? 4 : 8), // Use same topPadding as AppBar, plus a bit of spacing
+            top: isLandscape ? 12 : 16, // Fixed padding since it's already in a SafeArea in home
             child: Material(
               color: AppTheme.getSurfaceColor(context),
               borderRadius: BorderRadius.circular(isLandscape ? 8 : 8), // Corner radius in landscape
@@ -215,18 +196,8 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
     }
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
-          ),
-        ),
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      body: SafeArea(
         child: content,
       ),
       // Add category drawer for mobile
@@ -308,21 +279,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
           child: Container(
             width: 240,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: Theme.of(context).brightness == Brightness.dark
-                    ? [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                        AppTheme.getBackgroundColor(context),
-                      ]
-                    : [
-                        AppTheme.getBackgroundColor(context),
-                        AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                        AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                      ],
-              ),
+              color: AppTheme.getSurfaceColor(context),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -336,26 +293,12 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
               children: [
                 // Header
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: Theme.of(context).brightness == Brightness.dark
-                          ? [
-                              const Color(0xFF0A0A0A),
-                              AppTheme.getPrimaryColor(context)
-                                  .withOpacity(0.1),
-                            ]
-                          : [
-                              const Color(0xFFE0E0E0),
-                              AppTheme.getPrimaryColor(context)
-                                  .withOpacity(0.12),
-                            ],
-                    ),
+                    color: AppTheme.getSurfaceColor(context),
                     border: Border(
                       bottom: BorderSide(
-                        color: AppTheme.getCardColor(context),
+                        color: Colors.white.withOpacity(0.03),
                         width: 1,
                       ),
                     ),
@@ -365,26 +308,32 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                       TVFocusable(
                         onSelect: () => Navigator.of(context).pop(),
                         focusScale: 1.1,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppTheme.getCardColor(context),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: AppTheme.getTextPrimary(context),
-                            size: 20,
-                          ),
-                        ),
+                        showFocusBorder: false,
+                        builder: (context, isFocused, child) {
+                          return AnimatedContainer(
+                            duration: AppTheme.animationFast,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.arrow_back_rounded,
+                              color: isFocused ? Colors.black : Colors.white,
+                              size: 20,
+                            ),
+                          );
+                        },
+                        child: const SizedBox.shrink(),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
                       Text(
-                        AppStrings.of(context)?.categories ?? 'Categories',
-                        style: TextStyle(
-                          color: AppTheme.getTextPrimary(context),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                        AppStrings.of(context)?.categories.toUpperCase() ?? 'CATEGORIES',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
                         ),
                       ),
                     ],
@@ -467,8 +416,8 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: const BoxDecoration(
-                    gradient: AppTheme.lotusGradient,
+                  decoration: BoxDecoration(
+                    color: AppTheme.getPrimaryColor(context),
                   ),
                   child: Text(
                     AppStrings.of(context)?.categories ?? 'Categories',
@@ -584,19 +533,17 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
     int groupIndex = 0,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: TVFocusable(
         focusNode: focusNode,
         onSelect: onTap,
         onFocus: PlatformDetector.isTV
             ? () {
-                // TV side focus move delays category selection to avoid frequent refreshes during rapid scrolling
                 _currentGroupIndex = groupIndex;
                 _groupSelectTimer?.cancel();
                 _groupSelectTimer =
                     Timer(const Duration(milliseconds: 300), () {
                   if (mounted) {
-                    // Reset channel index and scroll to top when switching categories
                     _lastChannelIndex = 0;
                     _scrollController.jumpTo(0);
                     onTap();
@@ -606,7 +553,6 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
             : null,
         onRight: PlatformDetector.isTV
             ? () {
-                // Press Right to jump to last focused channel (or first)
                 if (_channelFocusNodes.isNotEmpty) {
                   final targetIndex =
                       _lastChannelIndex.clamp(0, _channelFocusNodes.length - 1);
@@ -616,87 +562,89 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
             : null,
         onLeft: PlatformDetector.isTV
             ? () {
-                // Press Left to jump to current selected item in sidebar (Channels is index 1)
                 final menuNodes = TVSidebar.menuFocusNodes;
                 if (menuNodes != null && menuNodes.length > 1) {
-                  menuNodes[1].requestFocus(); // Channels page是第2个菜单项
+                  menuNodes[1].requestFocus();
                 }
               }
             : null,
-        focusScale: 1.02,
+        focusScale: 1.05,
         showFocusBorder: false,
         builder: (context, isFocused, child) {
+          final showHighlight = isSelected || isFocused;
           return AnimatedContainer(
             duration: AppTheme.animationFast,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              gradient: isSelected || isFocused
-                  ? AppTheme.getSoftGradient(context)
-                  : null,
-              borderRadius: BorderRadius.circular(10),
+              color: isFocused
+                  ? Colors.white
+                  : (isSelected ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : Colors.transparent),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : isSelected
-                        ? AppTheme.getPrimaryColor(context).withOpacity(0.5)
-                        : Colors.transparent,
-                width: isFocused ? 2 : 1,
+                color: isFocused ? Colors.white : (isSelected ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.transparent),
+                width: 2.0,
               ),
             ),
             child: Row(
               children: [
-                // Selection indicator
-                AnimatedContainer(
-                  duration: AppTheme.animationFast,
-                  width: 4,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppTheme.getPrimaryColor(context)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(2),
+                // Selection dot indicator
+                if (isSelected && !isFocused)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.getPrimaryColor(context),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.getPrimaryColor(context).withOpacity(0.5),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
 
                 // Name
                 Expanded(
-                  child: Text(
-                    name,
-                    style: TextStyle(
-                      color: isSelected
-                          ? AppTheme.getPrimaryColor(context)
-                          : AppTheme.getTextPrimary(context),
-                      fontSize: 14,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.normal,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return Text(
+                      name.toUpperCase(),
+                      style: TextStyle(
+                        color: isFocused ? Colors.black : (isSelected ? Colors.white : Colors.white60),
+                        fontSize: 12,
+                        fontWeight: (isFocused || isSelected) ? FontWeight.w900 : FontWeight.w700,
+                        letterSpacing: 1.0,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  }),
                 ),
 
                 // Count badge
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppTheme.getPrimaryColor(context).withOpacity(0.2)
-                        : AppTheme.getCardColor(context),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    count.toString(),
-                    style: TextStyle(
-                      color: isSelected
-                          ? AppTheme.getPrimaryColor(context)
-                          : AppTheme.getTextMuted(context),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                if (count > 0)
+                  Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isFocused ? Colors.black.withOpacity(0.1) : Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        count.toString(),
+                        style: TextStyle(
+                          color: isFocused ? Colors.black54 : Colors.white38,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    );
+                  }),
               ],
             ),
           );
@@ -723,49 +671,39 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
         return CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // Add top padding for mobile
-            if (isMobile)
-              SliverToBoxAdapter(
-                child: SizedBox(height: topPadding),
-              ),
             // App Bar
             SliverAppBar(
               floating: true,
-              primary: false, // Disable auto SafeArea
+              primary: true, // Enable auto SafeArea
               backgroundColor: Colors.transparent,
-              toolbarHeight: isLandscape ? 32.0 : 56.0, // Mobile landscape height increased from 28 to 32
-              expandedHeight: 0, // No expanded height needed
-              collapsedHeight: isLandscape ? 32.0 : 56.0, // Mobile landscape height increased from 28 to 32
-              titleSpacing: 0, // Reduce title spacing
-              leadingWidth: isLandscape ? 40 : 56, // Reduce leading width in landscape
+              toolbarHeight: isLandscape ? 40.0 : 64.0, // Increased height for better fit
+              expandedHeight: 0,
+              collapsedHeight: isLandscape ? 40.0 : 64.0, // Increased height
+              titleSpacing: 16, // Add title spacing
+              leadingWidth: isLandscape ? 40 : 56,
               flexibleSpace: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: Theme.of(context).brightness == Brightness.dark
-                        ? [
-                            const Color(0xFF0A0A0A),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                          ]
-                        : [
-                            const Color(0xFFE0E0E0),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                          ],
-                  ),
+                  color: AppTheme.getBackgroundColor(context),
                 ),
               ),
               leading: isMobile
                   ? (widget.embedded
                       ? null // Embedded mode does not show menu button
                       : IconButton(
-                          icon: Icon(Icons.menu_rounded,
+                          icon: Icon(
+                              (Navigator.of(context).canPop() || widget.forceShowBackButton)
+                                  ? Icons.arrow_back_rounded
+                                  : Icons.menu_rounded,
                               color: AppTheme.getTextPrimary(context),
                               size: isLandscape ? 18 : 24),
-                          padding: isLandscape
-                              ? const EdgeInsets.all(4)
-                              : null, // Reduce padding in landscape
-                          onPressed: () => Scaffold.of(context).openDrawer(),
+                          padding: isLandscape ? const EdgeInsets.all(4) : null,
+                          onPressed: () {
+                            if (Navigator.of(context).canPop() || widget.forceShowBackButton) {
+                              Navigator.pop(context);
+                            } else {
+                              Scaffold.of(context).openDrawer();
+                            }
+                          },
                         ))
                   : null,
               title: widget.embedded
@@ -812,24 +750,26 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                     onPressed: () =>
                         _confirmDeleteAllUnavailable(context, provider),
                   ),
-                // Channel count
+                // Channel count badge
                 Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isLandscape ? 6 : 12,
-                      vertical: isLandscape ? 2 : 6,
+                      horizontal: isLandscape ? 8 : 12,
+                      vertical: isLandscape ? 4 : 6,
                     ),
                     margin: EdgeInsets.only(right: isLandscape ? 6 : 16),
                     decoration: BoxDecoration(
-                      color: AppTheme.getSurfaceColor(context),
-                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
                     ),
                     child: Text(
-                      '${channels.length} ${AppStrings.of(context)?.channels ?? 'channels'}',
+                      '${channels.length} CHANNELS',
                       style: TextStyle(
-                        color: AppTheme.getTextSecondary(context),
-                        fontSize: isLandscape ? 9 : 12, // Smaller font in landscape
-                        fontWeight: FontWeight.w500,
+                        color: Colors.white70,
+                        fontSize: isLandscape ? 8 : 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -1114,26 +1054,31 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.getSurfaceColor(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Delete all invalid channels',
-          style: TextStyle(color: AppTheme.getTextPrimary(context)),
+          AppStrings.of(context)?.deletePlaylist.toUpperCase() ?? 'DELETE INVALID CHANNELS',
+          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.0),
         ),
         content: Text(
           'Are you sure you want to delete all $count invalid channels? This action cannot be undone.',
-          style: TextStyle(color: AppTheme.getTextSecondary(context)),
+          style: const TextStyle(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.w500),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Cancel"),
+            child: const Text("CANCEL", style: TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
           ),
+          const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
             ),
-            child: const Text('删除', style: TextStyle(color: Colors.white)),
+            child: const Text('DELETE ALL', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5)),
           ),
         ],
       ),

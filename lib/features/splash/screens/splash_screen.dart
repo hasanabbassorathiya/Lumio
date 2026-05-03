@@ -118,134 +118,126 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              primaryColor.withOpacity(0.05),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Animated Logo
-              AnimatedBuilder(
-                animation: _logoController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _logoScale.value,
-                    child: Opacity(
-                      opacity: _logoOpacity.value,
-                      child: child,
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.getGradient(context),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primaryColor.withOpacity(0.4),
-                        blurRadius: 30,
-                        spreadRadius: 5,
+      body: SafeArea(
+        child: Container(
+          color: AppTheme.getBackgroundColor(context),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated Logo
+                AnimatedBuilder(
+                  animation: _logoController,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _logoScale.value,
+                      child: Opacity(
+                        opacity: _logoOpacity.value,
+                        child: child,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      'assets/icons/app_icon.jpg',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
+                    );
+                  },
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.4),
+                          blurRadius: 30,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/icons/app_icon.jpg',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-              // Animated App Name
-              SlideTransition(
-                position: _textSlide,
-                child: FadeTransition(
-                  opacity: _textOpacity,
-                  child: Column(
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            AppTheme.getGradient(context).createShader(bounds),
-                        child: Text(
-                          AppStrings.of(context)?.lumioIptv ?? 'Lumio IPTV',
-                          style: const TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
+                // Animated App Name
+                SlideTransition(
+                  position: _textSlide,
+                  child: FadeTransition(
+                    opacity: _textOpacity,
+                    child: Column(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              AppTheme.getGradient(context).createShader(bounds),
+                          child: Text(
+                            (AppStrings.of(context)?.lumioIptv ?? 'Lumio IPTV').toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 2.0,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppStrings.of(context)?.professionalIptvPlayer ??
-                            'Professional IPTV Player',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.getTextSecondary(context)
-                              .withOpacity(0.8),
-                          letterSpacing: 2,
+                        const SizedBox(height: 12),
+                        Text(
+                          (AppStrings.of(context)?.professionalIptvPlayer ??
+                              'Professional IPTV Player').toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white38,
+                            letterSpacing: 3.0,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 60),
+                const SizedBox(height: 60),
 
-              // Loading indicator
-              AnimatedBuilder(
-                animation: _textController,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _textOpacity.value,
-                    child: child,
-                  );
-                },
-                child: SizedBox(
-                  width: 200,
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          backgroundColor: AppTheme.getSurfaceColor(context),
-                          color: primaryColor,
-                          minHeight: 4,
+                // Loading indicator
+                AnimatedBuilder(
+                  animation: _textController,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _textOpacity.value,
+                      child: child,
+                    );
+                  },
+                  child: SizedBox(
+                    width: 200,
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            backgroundColor: AppTheme.getSurfaceColor(context),
+                            color: primaryColor,
+                            minHeight: 4,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppStrings.of(context)?.loading ?? 'Loading...',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.getTextMuted(context),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppStrings.of(context)?.loading ?? 'Loading...',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.getTextMuted(context),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -20,7 +20,7 @@ class DlnaService {
 
   // Device info
   String _deviceUuid = '';
-  String _deviceName = 'Lotus IPTV';
+  String _deviceName = 'Lumio IPTV';
   String? _localIp;
 
   // Service status
@@ -170,17 +170,17 @@ USN: $_deviceUuid::urn:schemas-upnp-org:device:MediaRenderer:1\r
       final deviceInfo = DeviceInfoPlugin();
       if (Platform.isAndroid) {
         final info = await deviceInfo.androidInfo;
-        _deviceUuid = 'uuid:${info.id}-lotus-iptv';
-        _deviceName = 'Lotus IPTV (${info.model})';
+        _deviceUuid = 'uuid:${info.id}-lumio-iptv';
+        _deviceName = 'Lumio IPTV (${info.model})';
       } else if (Platform.isWindows) {
         final info = await deviceInfo.windowsInfo;
-        _deviceUuid = 'uuid:${info.deviceId}-lotus-iptv';
-        _deviceName = 'Lotus IPTV (${info.computerName})';
+        _deviceUuid = 'uuid:${info.deviceId}-lumio-iptv';
+        _deviceName = 'Lumio IPTV (${info.computerName})';
       } else {
-        _deviceUuid = 'uuid:lotus-iptv-${DateTime.now().millisecondsSinceEpoch}';
+        _deviceUuid = 'uuid:lumio-iptv-${DateTime.now().millisecondsSinceEpoch}';
       }
     } catch (e) {
-      _deviceUuid = 'uuid:lotus-iptv-${DateTime.now().millisecondsSinceEpoch}';
+      _deviceUuid = 'uuid:lumio-iptv-${DateTime.now().millisecondsSinceEpoch}';
     }
   }
 
@@ -342,7 +342,7 @@ CACHE-CONTROL: max-age=1800\r
 DATE: ${HttpDate.format(DateTime.now())}\r
 EXT:\r
 LOCATION: http://$_localIp:$_httpPort/description.xml\r
-SERVER: Lotus IPTV/1.0 UPnP/1.0 DLNADOC/1.50\r
+SERVER: Lumio IPTV/1.0 UPnP/1.0 DLNADOC/1.50\r
 ST: urn:schemas-upnp-org:device:MediaRenderer:1\r
 USN: $_deviceUuid::urn:schemas-upnp-org:device:MediaRenderer:1\r
 \r
@@ -359,7 +359,7 @@ CACHE-CONTROL: max-age=1800\r
 LOCATION: http://$_localIp:$_httpPort/description.xml\r
 NT: urn:schemas-upnp-org:device:MediaRenderer:1\r
 NTS: ssdp:alive\r
-SERVER: Lotus IPTV/1.0 UPnP/1.0 DLNADOC/1.50\r
+SERVER: Lumio IPTV/1.0 UPnP/1.0 DLNADOC/1.50\r
 USN: $_deviceUuid::urn:schemas-upnp-org:device:MediaRenderer:1\r
 \r
 ''';
@@ -419,7 +419,7 @@ USN: $_deviceUuid::urn:schemas-upnp-org:device:MediaRenderer:1\r
       request.response.statusCode = 200;
       request.response.headers.set('SID', sid);
       request.response.headers.set('TIMEOUT', 'Second-1800');
-      request.response.headers.set('Server', 'Lotus IPTV/1.0 UPnP/1.0');
+      request.response.headers.set('Server', 'Lumio IPTV/1.0 UPnP/1.0');
       request.response.headers.set('Content-Length', '0');
       await request.response.close();
       
@@ -485,10 +485,10 @@ USN: $_deviceUuid::urn:schemas-upnp-org:device:MediaRenderer:1\r
   <device>
     <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
     <friendlyName>$_deviceName</friendlyName>
-    <manufacturer>Lotus IPTV</manufacturer>
+    <manufacturer>Lumio IPTV</manufacturer>
     <manufacturerURL>https://github.com/shnulaa/FlutterIPTV</manufacturerURL>
-    <modelDescription>Lotus IPTV Media Renderer</modelDescription>
-    <modelName>Lotus IPTV</modelName>
+    <modelDescription>Lumio IPTV Media Renderer</modelDescription>
+    <modelName>Lumio IPTV</modelName>
     <modelNumber>1.0</modelNumber>
     <modelURL>https://github.com/shnulaa/FlutterIPTV</modelURL>
     <UDN>$_deviceUuid</UDN>

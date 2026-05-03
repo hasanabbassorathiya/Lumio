@@ -387,13 +387,13 @@ class LocalServerService {
 
   /// Generate the HTML page for mobile input (fallback)
   String _getImportPageHtml() {
-    return r'''
+    return '''
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotus IPTV - Import Playlist</title>
+    <title>Lumio IPTV - Import Playlist</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -408,7 +408,7 @@ class LocalServerService {
     </style>
 </head>
 <body>
-    <h1>🎬 Lotus IPTV</h1>
+    <h1>🎬 Lumio IPTV</h1>
     <p>Import Playlist</p>
     <p>Please reload the page</p>
 </body>
@@ -418,13 +418,13 @@ class LocalServerService {
 
   /// Generate the search HTML page (fallback)
   String _getSearchPageHtml() {
-    return r'''
+    return '''
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotus IPTV - Search Channels</title>
+    <title>Lumio IPTV - Search Channels</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -439,7 +439,7 @@ class LocalServerService {
     </style>
 </head>
 <body>
-    <h1>🔍 Lotus IPTV</h1>
+    <h1>🔍 Lumio IPTV</h1>
     <p>Search Channels</p>
     <p>Please reload the page</p>
 </body>
@@ -451,14 +451,14 @@ class LocalServerService {
   String _getLogsPageHtml() {
     final logContent = _logContent ?? 'No log content available';
     final escapedContent = const HtmlEscape().convert(logContent);
-    
+
     return '''
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotus IPTV - Log Viewer</title>
+    <title>Lumio IPTV - Log Viewer</title>
     <style>
         * {
             margin: 0;
@@ -608,7 +608,7 @@ class LocalServerService {
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Lotus IPTV Log Viewer</h1>
+            <h1>📋 Lumio IPTV Log Viewer</h1>
             <p>View and share app logs</p>
         </div>
         
@@ -699,7 +699,7 @@ class LocalServerService {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'lotus_iptv_logs_' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
+            a.download = 'lumio_iptv_logs_' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

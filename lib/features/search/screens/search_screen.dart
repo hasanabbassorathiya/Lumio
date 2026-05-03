@@ -55,17 +55,9 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTV = PlatformDetector.isTV || size.width > 1200;
-    final isMobile = PlatformDetector.isMobile;
-    final isLandscape = isMobile && MediaQuery.of(context).size.width > 600;
-    final statusBarHeight = isMobile ? MediaQuery.of(context).padding.top : 0.0;
-    final topPadding =
-        isMobile ? (statusBarHeight > 0 ? statusBarHeight - 15.0 : 0.0) : 0.0;
 
     final content = Column(
       children: [
-        // Add status bar spacing in landscape
-        if (isLandscape && topPadding > 0 && widget.embedded)
-          SizedBox(height: topPadding),
         _buildSearchHeader(),
         Expanded(child: _buildSearchResults()),
       ],
@@ -74,23 +66,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: Theme.of(context).brightness == Brightness.dark
-                  ? [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                      AppTheme.getBackgroundColor(context),
-                    ]
-                  : [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                    ],
-            ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 4, // Search page
             child: content,
@@ -99,24 +75,14 @@ class _SearchScreenState extends State<SearchScreen> {
       );
     }
 
-    // Embedded mode does not use Scaffold
+    // Embedded mode does not use Scaffold (SafeArea is applied by HomeScreen)
     if (widget.embedded) {
       return content;
     }
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
-          ),
-        ),
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      body: SafeArea(
         child: content,
       ),
     );
@@ -124,53 +90,24 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchHeader() {
     final isTV = PlatformDetector.isTV || PlatformDetector.useDPadNavigation;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isMobile = PlatformDetector.isMobile;
     final isLandscape =
         isMobile && MediaQuery.of(context).size.width > 600; // Consistent with other pages
-    final statusBarHeight = isMobile ? MediaQuery.of(context).padding.top : 0.0;
-    final topPadding = isMobile
-        ? (statusBarHeight > 0 ? statusBarHeight - 15.0 : 0.0)
-        : (MediaQuery.of(context).padding.top + 8);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      height: isLandscape ? 24.0 : null, // Fixed height 24px in landscape, consistent with AppBar
-      padding: EdgeInsets.only(
-        top: isLandscape ? 0 : (topPadding + 8), // No padding needed in landscape
-        left: 16,
-        right: 16,
-        bottom: isLandscape ? 0 : 8, // No padding needed in landscape
+      padding: EdgeInsets.fromLTRB(
+        16,
+        isMobile ? 12 : 24,
+        16,
+        isMobile ? 12 : 16,
       ),
-      alignment: isLandscape ? Alignment.centerLeft : null, // Vertically centered in landscape
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        gradient: isLandscape
-            ? null
-            : LinearGradient(
-                // Remove gradient background in landscape
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: isDark
-                    ? [
-                        Colors.black.withOpacity(0.3),
-                        Colors.black.withOpacity(0.5),
-                        Colors.black.withOpacity(0.3),
-                      ]
-                    : [
-                        Colors.white.withOpacity(0.3),
-                        Colors.white.withOpacity(0.5),
-                        Colors.white.withOpacity(0.3),
-                      ],
-              ),
-        boxShadow: isLandscape
-            ? null
-            : [
-                // Remove shadow in landscape
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+        color: AppTheme.getBackgroundColor(context),
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withOpacity(0.03), width: 1),
+        ),
       ),
       child: Row(
         children: [
@@ -179,29 +116,25 @@ class _SearchScreenState extends State<SearchScreen> {
             TVFocusable(
               onSelect: () => Navigator.pop(context),
               focusScale: 1.1,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isDark
-                        ? Colors.white.withOpacity(0.2)
-                        : Colors.black.withOpacity(0.1),
-                    width: 1,
+              child: Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: Icon(
-                  Icons.arrow_back_rounded,
-                  color: AppTheme.getTextPrimary(context),
-                  size: 20,
-                ),
-              ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    color: isFocused ? Colors.black : Colors.white,
+                    size: 20,
+                  ),
+                );
+              }),
             ),
 
-          if (!widget.embedded) const SizedBox(width: 12),
+          if (!widget.embedded) const SizedBox(width: 16),
 
           // Search Field - TV uses clickable search box
           Expanded(
@@ -217,23 +150,27 @@ class _SearchScreenState extends State<SearchScreen> {
           if (isTV)
             TVFocusable(
               onSelect: _showQrSearchDialog,
-              focusScale: 1.0,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppTheme.getPrimaryColor(context).withOpacity(0.3),
-                    width: 1,
+              focusScale: 1.05,
+              child: Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isFocused ? AppTheme.getPrimaryColor(context) : AppTheme.getPrimaryColor(context).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isFocused ? Colors.white : AppTheme.getPrimaryColor(context).withOpacity(0.3),
+                      width: 1.5,
+                    ),
                   ),
-                ),
-                child: Icon(
-                  Icons.qr_code_scanner_rounded,
-                  color: AppTheme.getPrimaryColor(context),
-                  size: 20,
-                ),
-              ),
+                  child: Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: isFocused ? Colors.white : AppTheme.getPrimaryColor(context),
+                    size: 20,
+                  ),
+                );
+              }),
             ),
         ],
       ),
@@ -241,104 +178,94 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildTVSearchField() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return TVFocusable(
-      autofocus: false, // Do not auto-focus search box
+      autofocus: false,
       onSelect: () => _showTVSearchDialog(),
       focusScale: 1.02,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isDark
-              ? const Color(0x14FFFFFF) // White 8% opacity
-              : const Color(0x08000000), // Black 3% opacity
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isDark
-                ? const Color(0x26FFFFFF) // White 15% opacity
-                : const Color(0x14000000), // Black 8% opacity
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.search_rounded,
-              color: AppTheme.getTextMuted(context),
-              size: 20,
+      child: Builder(builder: (context) {
+        final isFocused = Focus.of(context).hasFocus;
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isFocused ? Colors.white.withOpacity(0.05) : AppTheme.getCardColor(context),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white.withOpacity(0.05),
+              width: 1.5,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _searchQuery.isEmpty
-                    ? (AppStrings.of(context)?.searchHint ??
-                        'Search channels...')
-                    : _searchQuery,
-                style: TextStyle(
-                  color: _searchQuery.isEmpty
-                      ? AppTheme.getTextMuted(context)
-                      : AppTheme.getTextPrimary(context),
-                  fontSize: 14,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.search_rounded,
+                color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white24,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _searchQuery.isEmpty
+                      ? (AppStrings.of(context)?.searchHint ?? 'Search channels...')
+                      : _searchQuery,
+                  style: TextStyle(
+                    color: _searchQuery.isEmpty ? Colors.white24 : Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            if (_searchQuery.isNotEmpty)
-              GestureDetector(
-                onTap: () => setState(() {
-                  _searchQuery = '';
-                  _searchController.clear();
-                }),
-                child: Icon(
-                  Icons.clear_rounded,
-                  color: AppTheme.getTextMuted(context),
+              if (_searchQuery.isNotEmpty)
+                Icon(
+                  Icons.keyboard_arrow_right_rounded,
+                  color: Colors.white24,
                   size: 18,
                 ),
-              ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
   Widget _buildMobileSearchField() {
     final isMobile = PlatformDetector.isMobile;
-    final isLandscape =
-        isMobile && MediaQuery.of(context).size.width > 600; // Consistent with other pages
+    final isLandscape = isMobile && MediaQuery.of(context).size.width > 600;
 
-    return Container(
+    return AnimatedContainer(
+      duration: AppTheme.animationFast,
       decoration: BoxDecoration(
         color: AppTheme.getCardColor(context),
-        borderRadius: BorderRadius.circular(isLandscape ? 10 : 12), // Smaller corner radius in landscape
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
       ),
       child: TextField(
         controller: _searchController,
         focusNode: _searchFocusNode,
         style: TextStyle(
-          color: AppTheme.getTextPrimary(context),
-          fontSize: isLandscape ? 14 : 16, // Smaller font in landscape
+          color: Colors.white,
+          fontSize: isLandscape ? 14 : 15,
+          fontWeight: FontWeight.w600,
         ),
         decoration: InputDecoration(
           hintText: AppStrings.of(context)?.searchHint ?? 'Search channels...',
           hintStyle: TextStyle(
-            color: AppTheme.getTextMuted(context),
-            fontSize: isLandscape ? 14 : 16, // Smaller font in landscape
+            color: Colors.white24,
+            fontSize: isLandscape ? 14 : 15,
+            fontWeight: FontWeight.w500,
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppTheme.getTextMuted(context),
-            size: isLandscape ? 20 : 24, // Smaller icon in landscape
+            color: Colors.white24,
+            size: isLandscape ? 20 : 22,
           ),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     Icons.clear_rounded,
-                    color: AppTheme.getTextMuted(context),
-                    size: isLandscape ? 20 : 24, // Smaller icon in landscape
+                    color: Colors.white38,
+                    size: 18,
                   ),
-                  padding: isLandscape
-                      ? const EdgeInsets.all(4)
-                      : null, // Reduce padding in landscape
                   onPressed: () {
                     _searchController.clear();
                     setState(() => _searchQuery = '');
@@ -347,8 +274,8 @@ class _SearchScreenState extends State<SearchScreen> {
               : null,
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
-            horizontal: isLandscape ? 12 : 16, // Reduce padding in landscape
-            vertical: isLandscape ? 6 : 8, // Reduce padding in landscape
+            horizontal: 16,
+            vertical: isLandscape ? 10 : 14,
           ),
         ),
         onChanged: (value) {
@@ -676,14 +603,28 @@ class _SearchScreenState extends State<SearchScreen> {
                     _searchController.text = category;
                     setState(() => _searchQuery = category);
                   },
-                  child: Chip(
-                    label: Text(
-                      category,
-                      style: TextStyle(color: AppTheme.getTextPrimary(context)),
-                    ),
-                    backgroundColor: AppTheme.getSurfaceColor(context),
-                    side: BorderSide(color: AppTheme.getCardColor(context)),
-                  ),
+                  child: Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return AnimatedContainer(
+                      duration: AppTheme.animationFast,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isFocused ? Colors.black : AppTheme.getTextPrimary(context),
+                          fontWeight: isFocused ? FontWeight.w900 : FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  }),
                 );
               }).toList(),
             ),

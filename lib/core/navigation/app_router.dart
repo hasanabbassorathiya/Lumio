@@ -52,6 +52,7 @@ class AppRouter {
         return _buildRoute(
           ChannelsScreen(
             groupName: args?['groupName'],
+            forceShowBackButton: args?['forceShowBackButton'] ?? false,
           ),
           settings,
         );

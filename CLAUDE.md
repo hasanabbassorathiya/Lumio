@@ -60,7 +60,7 @@ npm run lint
 - NEVER commit .env files or any file containing secrets
 - Always validate user input at system boundaries
 - Always sanitize file paths to prevent directory traversal
-- Run `npx @claude-flow/cli@latest security scan` after security-related changes
+- Run `npx @claude-flow/cli@latest security scan` after security-related changes (Automated via PreToolUse hook)
 
 ## Concurrency: 1 MESSAGE = ALL RELATED OPERATIONS
 
@@ -72,7 +72,7 @@ npm run lint
 
 ## Swarm Orchestration
 
-- MUST initialize the swarm using CLI tools when starting complex tasks
+- MUST initialize the swarm using CLI tools when starting complex tasks (Automated via SessionStart hook)
 - MUST spawn concurrent agents using Claude Code's Agent tool
 - Never use CLI tools alone for execution — Agent tool agents do the actual work
 - MUST call CLI tools AND Agent tool in ONE message for complex work

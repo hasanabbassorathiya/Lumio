@@ -162,11 +162,17 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
 
     return Dialog(
       backgroundColor: AppTheme.getSurfaceColor(context),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isLandscape ? 12 : 16)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
-        width: isLandscape ? 250 : 500,  // smaller width in landscape
-        constraints: BoxConstraints(maxHeight: isLandscape ? 350 : 600),  // smaller height in landscape
-        padding: EdgeInsets.all(isLandscape ? 12 : 24),  // smaller padding in landscape
+        width: isLandscape ? 250 : 500,
+        constraints: BoxConstraints(maxHeight: isLandscape ? 350 : 600),
+        decoration: BoxDecoration(
+          color: AppTheme.getSurfaceColor(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+        ),
+        padding: EdgeInsets.all(isLandscape ? 12 : 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,45 +181,59 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(isLandscape ? 6 : 10),  // smaller padding in landscape
+                  padding: EdgeInsets.all(isLandscape ? 6 : 12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(isLandscape ? 8 : 12),
+                    color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.speed_rounded,
-                    color: AppTheme.primaryColor,
-                    size: isLandscape ? 18 : 24,  // smaller icon in landscape
+                    color: AppTheme.getPrimaryColor(context),
+                    size: isLandscape ? 18 : 26,
                   ),
                 ),
-                SizedBox(width: isLandscape ? 10 : 16),  // smaller spacing in landscape
+                SizedBox(width: isLandscape ? 10 : 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Channel Test',
+                        'CHANNEL TEST',
                         style: TextStyle(
-                          color: AppTheme.textPrimary,
-                          fontSize: isLandscape ? 14 : 20,  // smaller font in landscape
-                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: isLandscape ? 14 : 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
                         ),
                       ),
                       Text(
-                        'Total ${widget.channels.length} channels',
+                        'TOTAL ${widget.channels.length} CHANNELS',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: isLandscape ? 11 : 14,  // smaller font in landscape
+                          color: Colors.white38,
+                          fontSize: isLandscape ? 9 : 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.close, size: isLandscape ? 18 : 24),  // smaller icon in landscape
-                  color: AppTheme.textSecondary,
-                  padding: isLandscape ? const EdgeInsets.all(4) : null,  // smaller padding in landscape
-                  onPressed: () => Navigator.of(context).pop(),
+                TVFocusable(
+                  onSelect: () => Navigator.of(context).pop(),
+                  focusScale: 1.1,
+                  showFocusBorder: false,
+                  builder: (context, isFocused, child) {
+                    return AnimatedContainer(
+                      duration: AppTheme.animationFast,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.close, size: isLandscape ? 16 : 20, color: isFocused ? Colors.black : Colors.white60),
+                    );
+                  },
+                  child: const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -394,84 +414,115 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
                   children: [
                     if (_isComplete && _unavailable > 0) ...[
                       Expanded(
-                        child: TVFocusable(
-                          onSelect: () => _moveToUnavailableGroup(context),
-                          child: OutlinedButton.icon(
-                            onPressed: () => _moveToUnavailableGroup(context),
-                            icon: Icon(Icons.folder_special_rounded, size: isLandscape ? 14 : 18),  // smaller icon in landscape
-                            label: Text(
-                              'Move to Unavailable',
-                              style: TextStyle(fontSize: isLandscape ? 11 : 14),  // smaller font in landscape
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.orange,
-                              side: const BorderSide(color: Colors.orange),
-                              padding: EdgeInsets.symmetric(vertical: isLandscape ? 8 : 14),  // smaller padding in landscape
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(isLandscape ? 6 : 10),
-                              ),
-                            ),
-                          ),
+                        child: _buildActionButton(
+                          onPressed: () => _moveToUnavailableGroup(context),
+                          icon: Icons.folder_special_rounded,
+                          label: 'Move to Unavailable',
+                          backgroundColor: Colors.orange.withOpacity(0.1),
+                          foregroundColor: Colors.orange,
+                          borderColor: Colors.orange,
+                          isLandscape: isLandscape,
                         ),
                       ),
-                      SizedBox(width: isLandscape ? 8 : 12),  // smaller spacing in landscape
+                      SizedBox(width: isLandscape ? 8 : 12),
                     ],
                     Expanded(
-                      child: TVFocusable(
+                      child: _buildActionButton(
+                        onPressed: _isTesting
+                            ? _stopTest
+                            : (_isComplete
+                                ? () => Navigator.of(context).pop()
+                                : _startTest),
+                        icon: _isTesting
+                            ? Icons.stop_rounded
+                            : (_isComplete
+                                ? Icons.check_rounded
+                                : Icons.play_arrow_rounded),
+                        label: _isTesting
+                            ? 'Stop Test'
+                            : (_isComplete ? 'Complete' : 'Start Test'),
+                        backgroundColor: _isTesting
+                            ? AppTheme.errorColor
+                            : AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
                         autofocus: !_isTesting && !_isComplete,
-                        onSelect: _isTesting ? _stopTest : (_isComplete ? () => Navigator.of(context).pop() : _startTest),
-                        child: ElevatedButton.icon(
-                          onPressed: _isTesting ? _stopTest : (_isComplete ? () => Navigator.of(context).pop() : _startTest),
-                          icon: Icon(
-                            _isTesting ? Icons.stop_rounded : (_isComplete ? Icons.check_rounded : Icons.play_arrow_rounded),
-                            size: isLandscape ? 16 : 20,  // smaller icon in landscape
-                          ),
-                          label: Text(
-                            _isTesting ? 'Stop Test' : (_isComplete ? 'Complete' : 'Start Test'),
-                            style: TextStyle(fontSize: isLandscape ? 11 : 14),  // smaller font in landscape
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isTesting ? AppTheme.errorColor : AppTheme.primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: isLandscape ? 8 : 14),  // smaller padding in landscape
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(isLandscape ? 6 : 10),
-                            ),
-                          ),
-                        ),
+                        isLandscape: isLandscape,
                       ),
                     ),
                   ],
                 ),
                 // Run in Background button
                 if (_isTesting) ...[
-                  SizedBox(height: isLandscape ? 8 : 12),  // smaller spacing in landscape
+                  SizedBox(height: isLandscape ? 8 : 12),
                   SizedBox(
                     width: double.infinity,
-                    child: TVFocusable(
-                      onSelect: () => _runInBackground(context),
-                      child: OutlinedButton.icon(
-                        onPressed: () => _runInBackground(context),
-                        icon: Icon(Icons.open_in_new_rounded, size: isLandscape ? 14 : 18),  // smaller icon in landscape
-                        label: Text(
-                          'Run in Background',
-                          style: TextStyle(fontSize: isLandscape ? 11 : 14),  // smaller font in landscape
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.textSecondary,
-                          side: const BorderSide(color: AppTheme.cardColor),
-                          padding: EdgeInsets.symmetric(vertical: isLandscape ? 8 : 12),  // smaller padding in landscape
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(isLandscape ? 6 : 10),
-                          ),
-                        ),
-                      ),
+                    child: _buildActionButton(
+                      onPressed: () => _runInBackground(context),
+                      icon: Icons.open_in_new_rounded,
+                      label: 'Run in Background',
+                      backgroundColor: AppTheme.cardColor,
+                      foregroundColor: AppTheme.textSecondary,
+                      borderColor: Colors.white.withOpacity(0.1),
+                      isLandscape: isLandscape,
                     ),
                   ),
                 ],
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback? onPressed,
+    required IconData icon,
+    required String label,
+    required Color backgroundColor,
+    required Color foregroundColor,
+    Color? borderColor,
+    bool autofocus = false,
+    required bool isLandscape,
+  }) {
+    return TVFocusable(
+      autofocus: autofocus,
+      onSelect: onPressed,
+      child: Container(
+        height: isLandscape ? 38 : 50,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(isLandscape ? 8 : 12),
+          border: borderColor != null
+              ? Border.all(color: borderColor, width: 1.5)
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(isLandscape ? 8 : 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: isLandscape ? 16 : 20, color: foregroundColor),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    style: TextStyle(
+                      color: foregroundColor,
+                      fontSize: isLandscape ? 10 : 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -484,16 +535,19 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
           value,
           style: TextStyle(
             color: color,
-            fontSize: isLandscape ? 14 : 20,  // smaller font in landscape
-            fontWeight: FontWeight.bold,
+            fontSize: isLandscape ? 16 : 22,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.0,
           ),
         ),
-        SizedBox(height: isLandscape ? 2 : 4),  // smaller spacing in landscape
+        SizedBox(height: isLandscape ? 2 : 4),
         Text(
-          label,
-          style: TextStyle(
-            color: AppTheme.textMuted,
-            fontSize: isLandscape ? 10 : 12,  // smaller font in landscape
+          label.toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
           ),
         ),
       ],
@@ -602,9 +656,15 @@ class _BackgroundTestProgressDialogState extends State<BackgroundTestProgressDia
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppTheme.getSurfaceColor(context),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
         width: 400,
+        decoration: BoxDecoration(
+          color: AppTheme.getSurfaceColor(context),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+        ),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -614,15 +674,15 @@ class _BackgroundTestProgressDialogState extends State<BackgroundTestProgressDia
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.2),
+                    color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _progress.isRunning ? Icons.sync_rounded : Icons.check_circle_rounded,
-                    color: AppTheme.primaryColor,
-                    size: 24,
+                    color: AppTheme.getPrimaryColor(context),
+                    size: 26,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -630,28 +690,43 @@ class _BackgroundTestProgressDialogState extends State<BackgroundTestProgressDia
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Background Test',
-                        style: TextStyle(
-                          color: AppTheme.textPrimary,
+                      Text(
+                        'BACKGROUND TEST',
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
                         ),
                       ),
                       Text(
-                        _progress.isRunning ? 'Test in progress...' : 'Test complete',
+                        (_progress.isRunning ? 'TEST IN PROGRESS...' : 'TEST COMPLETE').toUpperCase(),
                         style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 13,
+                          color: Colors.white38,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  color: AppTheme.textSecondary,
-                  onPressed: () => Navigator.of(context).pop(),
+                TVFocusable(
+                  onSelect: () => Navigator.of(context).pop(),
+                  focusScale: 1.1,
+                  showFocusBorder: false,
+                  builder: (context, isFocused, child) {
+                    return AnimatedContainer(
+                      duration: AppTheme.animationFast,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.close, size: 20, color: isFocused ? Colors.black : Colors.white60),
+                    );
+                  },
+                  child: const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -780,16 +855,19 @@ class _BackgroundTestProgressDialogState extends State<BackgroundTestProgressDia
           value,
           style: TextStyle(
             color: color,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.0,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          label,
+          label.toUpperCase(),
           style: const TextStyle(
-            color: AppTheme.textMuted,
-            fontSize: 12,
+            color: Colors.white38,
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
           ),
         ),
       ],

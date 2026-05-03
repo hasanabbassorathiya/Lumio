@@ -1,4 +1,4 @@
-// Basic Flutter widget test for Lotus IPTV
+// Basic Flutter widget test for Lumio IPTV
 //
 // This test verifies that the app can be built without errors.
 

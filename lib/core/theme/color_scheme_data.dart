@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Color scheme data model
 /// Defines all color information for a single color scheme
 class ColorSchemeData {
-  /// Unique identifier, e.g., 'lotus', 'ocean'
+  /// Unique identifier, e.g., 'lumio', 'ocean'
   final String id;
 
-  /// Localization key, e.g., 'colorSchemeLotus'
+  /// Localization key, e.g., 'colorSchemeLumio'
   final String nameKey;
 
   /// Primary color 1 (gradient start color)

@@ -54,9 +54,14 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); // Listen to app lifecycle
-    _loadData();
-    _loadVersion();
-    _checkForUpdates();
+
+    // Defer data loading until after the first frame to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+      _loadVersion();
+      _checkForUpdates();
+    });
+
     // Listen for channel changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChannelProvider>().addListener(_onChannelProviderChanged);
@@ -383,23 +388,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: Theme.of(context).brightness == Brightness.dark
-                  ? [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                      AppTheme.getBackgroundColor(context),
-                    ]
-                  : [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                    ],
-            ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 0,
             child: _buildMainContent(context),
@@ -411,20 +400,13 @@ class _HomeScreenState extends State<HomeScreen>
     // Mobile uses bottom navigation to switch pages
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
-          ),
-        ),
+        color: AppTheme.getBackgroundColor(context),
         // Ensure content starts from top
         alignment: Alignment.topCenter,
-        child: _buildMobileBody(),
+        child: SafeArea(
+          bottom: false,
+          child: _buildMobileBody(),
+        ),
       ),
       bottomNavigationBar: _buildBottomNav(context),
       // Add floating action button for orientation toggle (mobile only)
@@ -524,11 +506,11 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       decoration: BoxDecoration(
           color: AppTheme.getSurfaceColor(context),
-          border: const Border(
-              top: BorderSide(color: Color(0x1AFFFFFF), width: 1))),
+          border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.03), width: 1.0))),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(navItems.length, (index) {
@@ -536,18 +518,26 @@ class _HomeScreenState extends State<HomeScreen>
               final isSelected = _selectedNavIndex == index;
               return GestureDetector(
                 onTap: () => _onNavItemTap(index),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: AppTheme.animationFast,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                      gradient:
-                          isSelected ? AppTheme.getGradient(context) : null,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusPill)),
-                  child: Icon(item.icon,
-                      color: isSelected
-                          ? Colors.white
-                          : AppTheme.getTextMuted(context),
-                      size: 22),
+                    color: isSelected
+                        ? AppTheme.getPrimaryColor(context).withOpacity(0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(item.icon,
+                          color: isSelected
+                              ? AppTheme.getPrimaryColor(context)
+                              : AppTheme.getTextSecondary(context),
+                          size: 22),
+                    ],
+                  ),
                 ),
               );
             }),
@@ -592,32 +582,29 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             // Fixed header
             _buildCompactHeader(channelProvider),
-            // Fixed category tabs（Hidden in landscape）
-            if (MediaQuery.of(context).size.width <= 700 ||
-                !PlatformDetector.isMobile)
-              _buildCategoryChips(channelProvider),
-            SizedBox(
-                height: PlatformDetector.isMobile &&
-                        MediaQuery.of(context).size.width > 700
-                    ? 0
-                    : (PlatformDetector.isMobile ? 2 : 16)), // Zero gap in landscape
-            // Scrollable channel list
+            // Scrollable content
             Expanded(
               child: CustomScrollView(
                 controller: _scrollController, // Add scroll controller
                 slivers: [
+                  // Category chips moved inside scroll view to prevent overflow when expanded
+                  if (MediaQuery.of(context).size.width <= 700 ||
+                      !PlatformDetector.isMobile)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child: _buildCategoryChips(channelProvider),
+                      ),
+                    ),
                   SliverPadding(
                     padding: EdgeInsets.symmetric(
                         horizontal: PlatformDetector.isMobile ? 12 : 24),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
+                        // Hero Section
+                        _buildHeroSection(channelProvider),
+                        const SizedBox(height: 24),
                         // Show only when watch history is not empty
-                        if (_watchHistoryChannels.isNotEmpty)
-                          _buildChannelRow(
-                              AppStrings.of(context)?.watchHistory ??
-                                  'Watch History',
-                              _watchHistoryChannels,
-                              isFirstRow: true), // Watch History是第一行
                         if (_watchHistoryChannels.isNotEmpty)
                           SizedBox(height: PlatformDetector.isMobile ? 8 : 12),
                         ...channelProvider.groups
@@ -716,109 +703,121 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
 
-    // Continue Watching按钮 - Name fixed as "Continue", does not change based on mode
+    // Continue Watching button
     final continueLabel =
         AppStrings.of(context)?.continueWatching ?? 'Continue';
     final isMobile = PlatformDetector.isMobile;
     final screenWidth = MediaQuery.of(context).size.width;
     final isLandscape = isMobile && screenWidth > 700; // Mobile landscape
 
-    // Get mobile status bar height and reduce gap to move content closer
-    final statusBarHeight = isMobile ? MediaQuery.of(context).padding.top : 0.0;
-    final topPadding = isMobile
-        ? (statusBarHeight > 0 ? statusBarHeight - 10.0 : 0.0)
-        : 16.0; // Status bar height + 4px
-
     return Container(
-      // Add status bar padding on mobile, use SafeArea on other platforms
       padding: EdgeInsets.fromLTRB(
+          isMobile ? 16 : 24,
           isMobile ? 12 : 24,
-          topPadding, // Use calculated top padding
-          isMobile ? 12 : 24,
-          isMobile ? 2 : 12),
+          isMobile ? 16 : 24,
+          isMobile ? 12 : 16),
+      decoration: BoxDecoration(
+        color: AppTheme.getBackgroundColor(context),
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withOpacity(0.03), width: 1),
+        ),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) =>
-                      AppTheme.getGradient(context).createShader(bounds),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text('Lumio IPTV',
-                          style: TextStyle(
-                              fontSize: isLandscape ? 16 : (isMobile ? 18 : 28),
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)), // Landscape 16, portrait 18
-                      const SizedBox(width: 8),
-                      Text('v$_appVersion',
-                          style: TextStyle(
-                              fontSize: isLandscape ? 10 : 11,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.white70)), // Landscape 10, portrait 11
-                      if (_availableUpdate != null) ...[
-                        const SizedBox(width: 8),
-                        TVFocusable(
-                          onSelect: () => Navigator.pushNamed(
-                              context, AppRouter.settings,
-                              arguments: {'autoCheckUpdate': true}),
-                          focusScale: 1.0,
-                          showFocusBorder: false,
-                          builder: (context, isFocused, child) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                gradient: isFocused
-                                    ? AppTheme.getGradient(context)
-                                    : LinearGradient(
-                                        colors: [
-                                          Colors.orange.shade600,
-                                          Colors.deepOrange.shade600
-                                        ],
-                                      ),
-                                borderRadius:
-                                    BorderRadius.circular(AppTheme.radiusPill),
-                                border: isFocused
-                                    ? Border.all(
-                                        color:
-                                            AppTheme.getPrimaryColor(context),
-                                        width: 2)
-                                    : null,
-                              ),
-                              child: child,
-                            );
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.system_update_rounded,
-                                  size: 10, color: Colors.white),
-                              const SizedBox(width: 3),
-                              Text('v${_availableUpdate!.version}',
-                                  style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600)),
-                            ],
-                          ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Logo
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        'assets/icons/app_icon.jpg',
+                        height: isLandscape ? 30 : (isMobile ? 36 : 48),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Text Title
+                    Expanded(
+                      child: Text(
+                        "LUMIO IPTV",
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          color: Colors.white,
                         ),
-                      ],
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // App Version
+                    Flexible(
+                      child: Text('V$_appVersion',
+                          style: TextStyle(
+                              fontSize: isLandscape ? 9 : 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                              color: Colors.white38),
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                    if (_availableUpdate != null) ...[
+                      const SizedBox(width: 12),
+                      TVFocusable(
+                        onSelect: () => Navigator.pushNamed(
+                            context, AppRouter.settings,
+                            arguments: {'autoCheckUpdate': true}),
+                        focusScale: 1.0,
+                        showFocusBorder: false,
+                        builder: (context, isFocused, child) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isFocused
+                                  ? AppTheme.getPrimaryColor(context)
+                                  : AppTheme.successColor.withOpacity(0.2),
+                              borderRadius:
+                                  BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: isFocused
+                                      ? Colors.white
+                                      : AppTheme.successColor.withOpacity(0.5),
+                                  width: 1.5)
+                            ),
+                            child: child,
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.system_update_rounded,
+                                size: 10, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('UPDATE',
+                                style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900)),
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-                // 手机端Hidden in landscape副标题，节省空间
                 if (!isMobile || MediaQuery.of(context).size.width <= 700) ...[
-                  SizedBox(height: isMobile ? 2 : 4),
+                  const SizedBox(height: 6),
                   Text(
-                    '${provider.totalChannelCount} ${AppStrings.of(context)?.channels ?? "channels"} · ${provider.groups.length} ${AppStrings.of(context)?.categories ?? "categories"} · ${context.watch<FavoritesProvider>().count} ${AppStrings.of(context)?.favorites ?? "favorites"}$playlistInfo',
+                    '${provider.totalChannelCount} CHANNELS · ${provider.groups.length} CATEGORIES',
                     style: TextStyle(
-                        color: AppTheme.getTextMuted(context), fontSize: 13),
+                        color: AppTheme.getTextMuted(context),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -826,33 +825,30 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
           ),
-          Row(
+          const SizedBox(width: 16),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _buildHeaderButton(
                   Icons.play_arrow_rounded,
-                  continueLabel,
+                  "CONTINUE",
                   true,
                   (lastChannel != null || isMultiScreenMode)
                       ? () => _continuePlayback(provider, lastChannel,
                           isMultiScreenMode, settingsProvider)
                       : null,
-                  focusNode: _continueButtonFocusNode), // Add focus node
-              SizedBox(width: isMobile ? 6 : 10),
-              _buildHeaderButton(
-                  Icons.playlist_add_rounded,
-                  AppStrings.of(context)?.playlists ?? 'Playlists',
-                  false,
-                  () => _showAddPlaylistDialog()),
-              SizedBox(width: isMobile ? 6 : 10),
+                  focusNode: _continueButtonFocusNode),
               _buildHeaderButton(
                   Icons.refresh_rounded,
-                  AppStrings.of(context)?.refresh ?? 'Refresh',
+                  "REFRESH",
                   false,
                   activePlaylist != null
                       ? () =>
                           _refreshCurrentPlaylist(playlistProvider, provider)
                       : null),
-              SizedBox(width: isMobile ? 6 : 10),
               _buildThemeToggleButton(),
             ],
           ),
@@ -967,7 +963,7 @@ class _HomeScreenState extends State<HomeScreen>
         SnackBar(
           content: const Text('Refresh successful'),
           duration: const Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: AppTheme.successColor,
         ),
       );
     } else {
@@ -977,7 +973,7 @@ class _HomeScreenState extends State<HomeScreen>
           content: Text(
               'Refresh failed: ${playlistProvider.error?.replaceAll("Exception:", "").trim() ?? ""}'),
           duration: const Duration(seconds: 5),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.errorColor,
         ),
       );
     }
@@ -1121,49 +1117,56 @@ class _HomeScreenState extends State<HomeScreen>
       {FocusNode? focusNode}) {
     final isMobile = PlatformDetector.isMobile;
     return TVFocusable(
-      focusNode: focusNode, // Add focusNode parameter
+      focusNode: focusNode,
       onSelect: onTap,
-      focusScale: 1.0,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 8 : 14, vertical: isMobile ? 6 : 8),
+              horizontal: isMobile ? 12 : 20, vertical: isMobile ? 10 : 14),
           decoration: BoxDecoration(
-            gradient:
-                isPrimary || isFocused ? AppTheme.getGradient(context) : null,
-            color:
-                isPrimary || isFocused ? null : AppTheme.getGlassColor(context),
-            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+            color: isFocused
+                ? Colors.white
+                : (isPrimary ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : AppTheme.getSurfaceColor(context)),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : AppTheme.getGlassBorderColor(context),
-                width: isFocused ? 2 : 1),
+              color: isFocused ? Colors.white : (isPrimary ? AppTheme.getPrimaryColor(context).withOpacity(0.3) : Colors.white.withOpacity(0.05)),
+              width: 2.0,
+            ),
+            boxShadow: isFocused ? [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              )
+            ] : null,
           ),
           child: child,
         );
       },
       child: Builder(
         builder: (context) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final textColor = isPrimary
-              ? Colors.white
-              : (isDark ? Colors.white : AppTheme.textPrimaryLight);
-          // Show icons only on mobile to save space
-          if (isMobile) {
-            return Icon(icon, color: textColor, size: 16);
+          final isFocused = Focus.of(context).hasFocus;
+          final contentColor = isFocused
+              ? Colors.black
+              : (isPrimary ? AppTheme.getPrimaryColor(context) : Colors.white70);
+
+          if (isMobile && !isPrimary) {
+            return Icon(icon, color: contentColor, size: 20);
           }
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: textColor, size: 16),
-              const SizedBox(width: 6),
+              Icon(icon, color: contentColor, size: 20),
+              const SizedBox(width: 10),
               Text(label,
                   style: TextStyle(
-                      color: textColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500)),
+                      color: contentColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8)),
             ],
           );
         },
@@ -1171,72 +1174,190 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildThemeToggleButton() {
-    final settingsProvider = context.watch<SettingsProvider>();
-    final isDarkMode = settingsProvider.themeMode == 'dark';
+  Widget _buildHeroSection(ChannelProvider provider) {
+    final settings = context.watch<SettingsProvider>();
     final isMobile = PlatformDetector.isMobile;
 
+    Channel? heroChannel;
+    if (settings.lastChannelId != null) {
+      try {
+        heroChannel = provider.channels.firstWhere((c) => c.id == settings.lastChannelId);
+      } catch (_) {}
+    }
+    heroChannel ??= provider.channels.isNotEmpty ? provider.channels.first : null;
+
+    if (heroChannel == null) return const SizedBox.shrink();
+
+    return Container(
+      height: isMobile ? 220 : 380,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: TVFocusable(
+        onSelect: () => _playChannel(heroChannel!),
+        focusScale: 1.02,
+        showFocusBorder: false,
+        builder: (context, isFocused, child) {
+          return AnimatedContainer(
+            duration: AppTheme.animationFast,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                width: isFocused ? 2.5 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.6),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: child,
+          );
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background Logo/Placeholder
+            Container(
+              color: const Color(0xFF141414),
+              child: Opacity(
+                opacity: 0.4,
+                child: ChannelLogoWidget(
+                  channel: heroChannel,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
+            // Premium Gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.4),
+                    Colors.black.withOpacity(0.9),
+                  ],
+                  stops: const [0.0, 0.4, 0.9],
+                ),
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: EdgeInsets.all(isMobile ? 20 : 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.getPrimaryColor(context),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'PREMIUM CONTENT',
+                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.2),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    heroChannel.name.toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 24 : 42,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                      height: 1.1,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  if (heroChannel.groupName != null)
+                    Text(
+                      heroChannel.groupName!.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontSize: isMobile ? 12 : 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+
+                  // Action Buttons
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      _buildHeroButton(
+                        Icons.play_arrow_rounded,
+                        'PLAY NOW',
+                        true,
+                        () => _playChannel(heroChannel!),
+                      ),
+                      if (!isMobile)
+                        _buildHeroButton(
+                          Icons.info_outline_rounded,
+                          'CHANNEL INFO',
+                          false,
+                          () => _showChannelOptions(context, heroChannel!),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeroButton(IconData icon, String label, bool isPrimary, VoidCallback onTap) {
     return TVFocusable(
-      onSelect: () {
-        // Switch dark/light mode
-        settingsProvider.setThemeMode(isDarkMode ? 'light' : 'dark');
-      },
-      focusScale: 1.0,
+      onSelect: onTap,
+      focusScale: 1.1,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 8 : 14, vertical: isMobile ? 6 : 8),
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
             color: isFocused
-                ? AppTheme.getGlassColor(context)
-                : AppTheme.getGlassColor(context).withOpacity(0.5),
-            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-            border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : AppTheme.getGlassBorderColor(context),
-                width: isFocused ? 2 : 1),
+                ? (isPrimary ? Colors.white : Colors.white.withOpacity(0.2))
+                : (isPrimary ? Colors.white : Colors.white.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: child,
         );
       },
-      child: Builder(
-        builder: (context) {
-          final themeIsDark = Theme.of(context).brightness == Brightness.dark;
-          final textColor =
-              themeIsDark ? Colors.white : AppTheme.textPrimaryLight;
-
-          // Show only icons on mobile
-          if (isMobile) {
-            return Icon(
-                isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                color: textColor,
-                size: 16);
-          }
-
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                  isDarkMode
-                      ? Icons.light_mode_rounded
-                      : Icons.dark_mode_rounded,
-                  color: textColor,
-                  size: 16),
-              const SizedBox(width: 6),
-              Text(
-                  isDarkMode
-                      ? (AppStrings.of(context)?.themeLight ?? 'Light')
-                      : (AppStrings.of(context)?.themeDark ?? 'Dark'),
-                  style: TextStyle(
-                      color: textColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500)),
-            ],
-          );
-        },
-      ),
+      child: Builder(builder: (context) {
+        final isFocused = Focus.of(context).hasFocus;
+        final color = isFocused ? Colors.black : Colors.white;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.0,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -1262,25 +1383,26 @@ class _HomeScreenState extends State<HomeScreen>
       children: [
         Row(
           children: [
-            Text(title,
+            Text(title.toUpperCase(),
                 style: TextStyle(
                     color: AppTheme.getTextPrimary(context),
-                    fontSize: isMobile ? 14 : 16,
-                    fontWeight: FontWeight.w600)),
+                    fontSize: isMobile ? 13 : 15,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0)),
             const Spacer(),
             if (showMore)
               TVFocusable(
                 onSelect: onMoreTap,
-                focusScale: 1.0,
+                focusScale: 1.05,
                 showFocusBorder: false,
                 builder: (context, isFocused, child) {
-                  return Container(
+                  return AnimatedContainer(
+                    duration: AppTheme.animationFast,
                     padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 8 : 10,
-                        vertical: isMobile ? 4 : 5),
+                        horizontal: isMobile ? 10 : 14,
+                        vertical: isMobile ? 5 : 7),
                     decoration: BoxDecoration(
-                      gradient:
-                          isFocused ? AppTheme.getGradient(context) : null,
+                      color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                     ),
                     child: child,
@@ -1289,14 +1411,21 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(AppStrings.of(context)?.more ?? 'More',
-                        style: TextStyle(
-                            color: AppTheme.getTextMuted(context),
-                            fontSize: isMobile ? 10 : 12)),
-                    const SizedBox(width: 2),
-                    Icon(Icons.chevron_right_rounded,
-                        color: AppTheme.getTextMuted(context),
-                        size: isMobile ? 14 : 16),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(AppStrings.of(context)?.more.toUpperCase() ?? 'MORE',
+                          style: TextStyle(
+                              color: isFocused ? Colors.black : AppTheme.getTextMuted(context),
+                              fontWeight: FontWeight.w900,
+                              fontSize: isMobile ? 10 : 11));
+                    }),
+                    const SizedBox(width: 4),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Icon(Icons.chevron_right_rounded,
+                          color: isFocused ? Colors.black : AppTheme.getTextMuted(context),
+                          size: isMobile ? 14 : 16);
+                    }),
                   ],
                 ),
               ),
@@ -1470,6 +1599,90 @@ class _HomeScreenState extends State<HomeScreen>
         .toList();
   }
 
+  Widget _buildThemeToggleButton() {
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, _) {
+        final isDark = settings.themeMode == 'dark' ||
+            (settings.themeMode == 'system' &&
+                MediaQuery.of(context).platformBrightness == Brightness.dark);
+
+        return TVFocusable(
+          onSelect: () {
+            settings.setThemeMode(isDark ? 'light' : 'dark');
+          },
+          focusScale: 1.1,
+          showFocusBorder: false,
+          child: const SizedBox.shrink(),
+          builder: (context, isFocused, child) {
+            return AnimatedContainer(
+              duration: AppTheme.animationFast,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                size: 20,
+                color: isFocused ? Colors.black : Colors.white70,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showChannelOptions(BuildContext context, Channel channel) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Material(
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.getBackgroundColor(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.play_arrow_rounded),
+                  title: Text(AppStrings.of(context)?.play ?? 'Play'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _playChannel(channel);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.favorite_rounded),
+                  title:
+                      Text(AppStrings.of(context)?.addFavorites ?? 'Add to Favorites'),
+                  onTap: () {
+                    context.read<FavoritesProvider>().toggleFavorite(channel);
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -1633,117 +1846,131 @@ class _ResponsiveCategoryChipsState extends State<_ResponsiveCategoryChips> {
   Widget _buildChip(String name, bool isMobile) {
     return TVFocusable(
       onSelect: () => widget.onGroupTap(name),
-      focusScale: 1.0,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 8 : 12,
-              vertical: isMobile ? 3 : 8), // Reduced from 5 to 3 on mobile
+              horizontal: isMobile ? 12 : 20,
+              vertical: isMobile ? 8 : 12),
           decoration: BoxDecoration(
-            gradient: isFocused
-                ? AppTheme.getGradient(context)
-                : AppTheme.getSoftGradient(context),
+            color: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusPill),
             border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : AppTheme.getGlassBorderColor(context)),
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 1.5,
+            ),
           ),
           child: child,
         );
       },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(CategoryCard.getIconForCategory(name),
-              size: isMobile ? 12 : 14,
-              color: AppTheme.getTextSecondary(context)),
-          SizedBox(width: isMobile ? 4 : 6),
-          Text(name,
-              style: TextStyle(
-                  color: AppTheme.getTextSecondary(context),
-                  fontSize: isMobile ? 10 : 12)),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final isFocused = Focus.of(context).hasFocus;
+        final color = isFocused ? Colors.black : AppTheme.getTextPrimary(context);
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(CategoryCard.getIconForCategory(name),
+                size: isMobile ? 14 : 16,
+                color: color),
+            SizedBox(width: isMobile ? 6 : 10),
+            Text(name.toUpperCase(),
+                style: TextStyle(
+                    color: color,
+                    fontSize: isMobile ? 11 : 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5)),
+          ],
+        );
+      }),
     );
   }
 
   Widget _buildExpandButton(int hiddenCount, bool isMobile) {
     return TVFocusable(
       onSelect: () => setState(() => _isExpanded = true),
-      focusScale: 1.0,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 8 : 12,
-              vertical: isMobile ? 3 : 8), // Reduced from 5 to 3 on mobile
+              horizontal: isMobile ? 12 : 20,
+              vertical: isMobile ? 8 : 12),
           decoration: BoxDecoration(
-            gradient: isFocused
-                ? AppTheme.getGradient(context)
-                : AppTheme.getSoftGradient(context),
+            color: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusPill),
             border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : AppTheme.getGlassBorderColor(context)),
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 1.5,
+            ),
           ),
           child: child,
         );
       },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.more_horiz_rounded,
-              size: isMobile ? 12 : 14,
-              color: AppTheme.getTextSecondary(context)),
-          SizedBox(width: isMobile ? 3 : 4),
-          Text('+$hiddenCount',
-              style: TextStyle(
-                  color: AppTheme.getTextSecondary(context),
-                  fontSize: isMobile ? 10 : 12)),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final isFocused = Focus.of(context).hasFocus;
+        final color = isFocused ? Colors.black : AppTheme.getTextPrimary(context);
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.more_horiz_rounded,
+                size: isMobile ? 14 : 16,
+                color: color),
+            SizedBox(width: isMobile ? 4 : 6),
+            Text('+$hiddenCount',
+                style: TextStyle(
+                    color: color,
+                    fontSize: isMobile ? 11 : 12,
+                    fontWeight: FontWeight.w900)),
+          ],
+        );
+      }),
     );
   }
 
   Widget _buildCollapseButton(bool isMobile) {
     return TVFocusable(
       onSelect: () => setState(() => _isExpanded = false),
-      focusScale: 1.0,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 8 : 12,
-              vertical: isMobile ? 3 : 8), // Reduced from 5 to 3 on mobile
+              horizontal: isMobile ? 12 : 20,
+              vertical: isMobile ? 8 : 12),
           decoration: BoxDecoration(
-            gradient: isFocused
-                ? AppTheme.getGradient(context)
-                : AppTheme.getSoftGradient(context),
+            color: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusPill),
             border: Border.all(
-                color: isFocused
-                    ? AppTheme.getPrimaryColor(context)
-                    : AppTheme.getGlassBorderColor(context)),
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 1.5,
+            ),
           ),
           child: child,
         );
       },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.unfold_less_rounded,
-              size: isMobile ? 12 : 14,
-              color: AppTheme.getTextSecondary(context)),
-          SizedBox(width: isMobile ? 3 : 4),
-          Text(AppStrings.of(context)?.collapse ?? 'Collapse',
-              style: TextStyle(
-                  color: AppTheme.getTextSecondary(context),
-                  fontSize: isMobile ? 10 : 12)),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final isFocused = Focus.of(context).hasFocus;
+        final color = isFocused ? Colors.black : AppTheme.getTextPrimary(context);
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.unfold_less_rounded,
+                size: isMobile ? 14 : 16,
+                color: color),
+            SizedBox(width: isMobile ? 4 : 6),
+            Text(AppStrings.of(context)?.collapse.toUpperCase() ?? 'COLLAPSE',
+                style: TextStyle(
+                    color: color,
+                    fontSize: isMobile ? 11 : 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5)),
+          ],
+        );
+      }),
     );
   }
 }

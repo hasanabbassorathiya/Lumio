@@ -54,40 +54,37 @@ class ColorSchemeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return TVFocusable(
       onSelect: onTap,
-      focusScale: 1.0,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
         return AnimatedContainer(
           duration: AppTheme.animationFast,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected
-                  ? Colors.white
-                  : (isFocused ? scheme.primaryColor : Colors.transparent),
-              width: isSelected ? 3 : (isFocused ? 2 : 0),
+              color: isFocused ? Colors.white : (isSelected ? Colors.white.withOpacity(0.5) : Colors.white.withOpacity(0.05)),
+              width: 2.0,
             ),
-            boxShadow: isFocused
-                ? [
-                    BoxShadow(
-                      color: scheme.primaryColor.withOpacity(0.4),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                    ),
-                  ]
-                : null,
+            boxShadow: isFocused ? [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              )
+            ] : null,
           ),
           child: child,
         );
       },
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           height: 100,
           decoration: BoxDecoration(
             gradient: scheme.gradient,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -96,39 +93,45 @@ class ColorSchemeCard extends StatelessWidget {
               const Spacer(flex: 7),
 
               // Name and selection indicator area (30%)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _getColorSchemeName(context),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+              Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: isFocused ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.6),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
                     ),
-                    if (isSelected)
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.white,
-                        size: 20,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _getColorSchemeName(context).toUpperCase(),
+                          style: TextStyle(
+                            color: isFocused ? Colors.black : Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                  ],
-                ),
-              ),
+                      if (isSelected)
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: isFocused ? Colors.black : Colors.white,
+                          size: 18,
+                        ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ),

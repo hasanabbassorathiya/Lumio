@@ -685,23 +685,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: Theme.of(context).brightness == Brightness.dark
-                  ? [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                      AppTheme.getBackgroundColor(context),
-                    ]
-                  : [
-                      AppTheme.getBackgroundColor(context),
-                      AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                      AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                    ],
-            ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 5, // Settings page
             child: content,
@@ -714,32 +698,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (widget.embedded) {
       final isMobile = PlatformDetector.isMobile;
       final isLandscape = isMobile && MediaQuery.of(context).size.width > 700;
-      final statusBarHeight =
-          isMobile ? MediaQuery.of(context).padding.top : 0.0;
-      final topPadding =
-          isMobile ? (statusBarHeight > 0 ? statusBarHeight - 15.0 : 0.0) : 0.0;
 
       return Column(
         children: [
           // Simplified title bar
           Container(
             padding: EdgeInsets.fromLTRB(
-              12,
-              topPadding + (isLandscape ? 4 : 8), // Use same topPadding as home screen
-              12,
-              isLandscape ? 4 : 8,
+              16,
+              isLandscape ? 8 : 12,
+              16,
+              isLandscape ? 8 : 12,
             ),
-            child: Row(
-              children: [
-                Text(
-                  AppStrings.of(context)?.settings ?? 'Settings',
-                  style: TextStyle(
-                    color: AppTheme.getTextPrimary(context),
-                    fontSize: isLandscape ? 14 : 18, // Smaller font in landscape
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            alignment: Alignment.centerLeft,
+            child: Text(
+              AppStrings.of(context)?.settings ?? 'Settings',
+              style: TextStyle(
+                color: AppTheme.getTextPrimary(context),
+                fontSize: isLandscape ? 16 : 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(child: content),
@@ -748,45 +725,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            // Add status bar height for mobile
-            if (PlatformDetector.isMobile)
-              SizedBox(height: MediaQuery.of(context).padding.top),
-            AppBar(
-              backgroundColor: Colors.transparent,
-              primary: false, // Disable automatic SafeArea padding
-              toolbarHeight: PlatformDetector.isMobile &&
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: PlatformDetector.isMobile &&
+                MediaQuery.of(context).size.width > 600
+            ? 40.0
+            : 56.0,
+        automaticallyImplyLeading: false, // Do not show back button
+        title: Text(
+          AppStrings.of(context)?.settings ?? 'Settings',
+          style: TextStyle(
+              color: AppTheme.getTextPrimary(context),
+              fontSize: PlatformDetector.isMobile &&
                       MediaQuery.of(context).size.width > 600
-                  ? 24.0
-                  : 56.0, // Reduce to 24px in landscape
-              automaticallyImplyLeading: false, // Do not show back button
-              title: Text(
-                AppStrings.of(context)?.settings ?? 'Settings',
-                style: TextStyle(
-                    color: AppTheme.getTextPrimary(context),
-                    fontSize: PlatformDetector.isMobile &&
-                            MediaQuery.of(context).size.width > 600
-                        ? 14
-                        : 20, // 14px font in landscape
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            Expanded(child: content),
-          ],
+                  ? 16
+                  : 22,
+              fontWeight: FontWeight.bold),
         ),
+      ),
+      body: SafeArea(
+        child: content,
       ),
     );
   }
@@ -984,17 +944,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Widget _buildInputTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return _buildSelectTile(context,
+        title: title, subtitle: subtitle, icon: icon, onTap: onTap);
+  }
+
   Widget _buildSectionHeader(String title) {
     return Builder(
       builder: (context) => Padding(
-        padding: const EdgeInsets.only(left: 4, bottom: 12),
+        padding: const EdgeInsets.fromLTRB(AppTheme.spacingMedium, AppTheme.spacingLarge, AppTheme.spacingMedium, AppTheme.spacingSmall),
         child: Text(
           title,
-          style: TextStyle(
-            color: AppTheme.getTextSecondary(context),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: AppTheme.getPrimaryColor(context),
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -1004,10 +973,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSettingsCard(List<Widget> children) {
     return Builder(
       builder: (context) => Container(
+        margin: const EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
           color: AppTheme.getSurfaceColor(context),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: children,
         ),
@@ -1018,9 +997,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildDivider() {
     return Builder(
       builder: (context) => Divider(
-        color: AppTheme.getCardColor(context),
+        color: Colors.white.withOpacity(0.03),
         height: 1,
         indent: 56,
+        endIndent: 16,
       ),
     );
   }
@@ -1038,69 +1018,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return TVFocusable(
       onSelect: () => onChanged(!value),
-      focusScale: 1.0,
+      focusScale: 1.02,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           decoration: BoxDecoration(
             color: isFocused
-                ? AppTheme.getFocusBackgroundColor(context)
+                ? Colors.white
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
           ),
           child: child,
         );
       },
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: isLandscape ? 12 : 16,
-          vertical: isLandscape ? 8 : 14,
+          horizontal: isLandscape ? 16 : 20,
+          vertical: isLandscape ? 12 : 18,
         ),
         child: Row(
           children: [
-            Container(
-              padding: EdgeInsets.all(isLandscape ? 6 : 8),
-              decoration: BoxDecoration(
-                color: AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                borderRadius: BorderRadius.circular(isLandscape ? 6 : 8),
-              ),
-              child: Icon(
-                icon,
-                color: AppTheme.getPrimaryColor(context),
-                size: isLandscape ? 16 : 20,
-              ),
-            ),
-            SizedBox(width: isLandscape ? 12 : 16),
+            Builder(builder: (context) {
+              final isFocused = Focus.of(context).hasFocus;
+              return AnimatedContainer(
+                duration: AppTheme.animationFast,
+                padding: EdgeInsets.all(isLandscape ? 8 : 10),
+                decoration: BoxDecoration(
+                  color: isFocused ? Colors.black.withOpacity(0.1) : AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: isFocused ? Colors.black : AppTheme.getPrimaryColor(context),
+                  size: isLandscape ? 20 : 24,
+                ),
+              );
+            }),
+            SizedBox(width: isLandscape ? 14 : 18),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: AppTheme.getTextPrimary(context),
-                      fontSize: isLandscape ? 13 : 15, // Smaller font in landscape
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AppTheme.getTextMuted(context),
-                      fontSize: isLandscape ? 10 : 12, // Smaller font in landscape
-                    ),
-                  ),
+                  Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return Text(
+                      title.toUpperCase(),
+                      style: TextStyle(
+                        color: isFocused ? Colors.black : Colors.white,
+                        fontSize: isLandscape ? 12 : 13,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 4),
+                  Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: isFocused ? Colors.black54 : Colors.white38,
+                        fontSize: isLandscape ? 10 : 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
             Transform.scale(
-              scale: isLandscape ? 0.8 : 1.0, // Smaller switch in landscape
-              child: Switch(
-                value: value,
-                onChanged: onChanged,
-                activeColor: AppTheme.getPrimaryColor(context),
-              ),
+              scale: isLandscape ? 0.8 : 0.9,
+              child: Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return Switch(
+                  value: value,
+                  onChanged: onChanged,
+                  activeColor: isFocused ? Colors.black : AppTheme.getPrimaryColor(context),
+                  activeTrackColor: isFocused ? Colors.black26 : null,
+                );
+              }),
             ),
           ],
         ),
@@ -1120,15 +1116,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return TVFocusable(
       onSelect: onTap,
-      focusScale: 1.0,
+      focusScale: 1.02,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           decoration: BoxDecoration(
-            color: isFocused
-                ? AppTheme.getFocusBackgroundColor(context)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            color: isFocused ? Colors.white : Colors.transparent,
           ),
           child: child,
         );
@@ -1137,72 +1131,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onTap: onTap,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: isLandscape ? 12 : 16,
-            vertical: isLandscape ? 8 : 14,
+            horizontal: isLandscape ? 16 : 20,
+            vertical: isLandscape ? 12 : 18,
           ),
           child: Row(
             children: [
-              Container(
-                padding: EdgeInsets.all(isLandscape ? 6 : 8),
-                decoration: BoxDecoration(
-                  color: AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(isLandscape ? 6 : 8),
-                ),
-                child: Icon(
-                  icon,
-                  color: AppTheme.getPrimaryColor(context),
-                  size: isLandscape ? 16 : 20,
-                ),
-              ),
-              SizedBox(width: isLandscape ? 12 : 16),
+              Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  padding: EdgeInsets.all(isLandscape ? 8 : 10),
+                  decoration: BoxDecoration(
+                    color: isFocused ? Colors.black.withOpacity(0.1) : AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isFocused ? Colors.black : AppTheme.getPrimaryColor(context),
+                    size: isLandscape ? 20 : 24,
+                  ),
+                );
+              }),
+              SizedBox(width: isLandscape ? 14 : 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: AppTheme.getTextPrimary(context),
-                        fontSize: isLandscape ? 13 : 15, // Smaller font in landscape
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: AppTheme.getTextMuted(context),
-                        fontSize: isLandscape ? 10 : 12, // Smaller font in landscape
-                      ),
-                    ),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(
+                        title.toUpperCase(),
+                        style: TextStyle(
+                          color: isFocused ? Colors.black : Colors.white,
+                          fontSize: isLandscape ? 12 : 13,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 4),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: isFocused ? Colors.black54 : Colors.white38,
+                          fontSize: isLandscape ? 10 : 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppTheme.getTextMuted(context),
-                size: isLandscape ? 18 : 24, // Smaller icon in landscape
-              ),
+              Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return Icon(
+                  Icons.chevron_right_rounded,
+                  color: isFocused ? Colors.black26 : Colors.white24,
+                  size: isLandscape ? 20 : 24,
+                );
+              }),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInputTile(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return _buildSelectTile(
-      context,
-      title: title,
-      subtitle: subtitle,
-      icon: icon,
-      onTap: onTap,
     );
   }
 
@@ -1216,17 +1209,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return TVFocusable(
       onSelect: onTap,
-      focusScale: 1.0,
+      focusScale: 1.02,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
           decoration: BoxDecoration(
             color: isFocused
-                ? (isDestructive
-                    ? AppTheme.errorColor.withOpacity(0.1)
-                    : AppTheme.getFocusBackgroundColor(context))
+                ? (isDestructive ? Colors.white : Colors.white)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
           ),
           child: child,
         );
@@ -1234,49 +1225,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: (isDestructive
-                          ? AppTheme.errorColor
-                          : AppTheme.getPrimaryColor(context))
-                      .withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  icon,
-                  color: isDestructive
-                      ? AppTheme.errorColor
-                      : AppTheme.getPrimaryColor(context),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 16),
+              Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return AnimatedContainer(
+                  duration: AppTheme.animationFast,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isFocused
+                        ? Colors.black.withOpacity(0.1)
+                        : (isDestructive ? AppTheme.errorColor : AppTheme.getPrimaryColor(context)).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isFocused
+                        ? (isDestructive ? AppTheme.errorColor : Colors.black)
+                        : (isDestructive ? AppTheme.errorColor : AppTheme.getPrimaryColor(context)),
+                    size: 24,
+                  ),
+                );
+              }),
+              const SizedBox(width: 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: isDestructive
-                            ? AppTheme.errorColor
-                            : AppTheme.getTextPrimary(context),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: AppTheme.getTextMuted(context),
-                        fontSize: 12,
-                      ),
-                    ),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(
+                        title.toUpperCase(),
+                        style: TextStyle(
+                          color: isFocused
+                              ? (isDestructive ? AppTheme.errorColor : Colors.black)
+                              : (isDestructive ? AppTheme.errorColor : Colors.white),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 4),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: isFocused ? Colors.black54 : Colors.white38,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -1294,32 +1296,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.getTextMuted(context).withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppTheme.getTextMuted(context), size: 20),
+            child: Icon(icon, color: Colors.white60, size: 24),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 18),
           Text(
-            title,
-            style: TextStyle(
-              color: AppTheme.getTextPrimary(context),
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
+            title.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.0,
             ),
           ),
           const Spacer(),
           Text(
             value,
-            style: TextStyle(
-              color: AppTheme.getTextSecondary(context),
+            style: const TextStyle(
+              color: Colors.white38,
               fontSize: 14,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

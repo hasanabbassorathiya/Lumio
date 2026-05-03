@@ -28,7 +28,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FavoritesProvider>().loadFavorites();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FavoritesProvider>().loadFavorites();
+    });
   }
 
   void _playChannel(dynamic channel) {
@@ -109,23 +111,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (isTV) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: Theme.of(context).brightness == Brightness.dark
-                        ? [
-                            AppTheme.getBackgroundColor(context),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                            AppTheme.getBackgroundColor(context),
-                          ]
-                        : [
-                            AppTheme.getBackgroundColor(context),
-                            AppTheme.getBackgroundColor(context).withOpacity(0.9),
-                            AppTheme.getPrimaryColor(context).withOpacity(0.08),
-                          ],
-                  ),
-          ),
+          color: AppTheme.getBackgroundColor(context),
           child: TVSidebar(
             selectedIndex: 3, // 收藏页
             child: content,
@@ -138,31 +124,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (widget.embedded) {
       final isMobile = PlatformDetector.isMobile;
       final isLandscape = isMobile && MediaQuery.of(context).size.width > 600;
-      final statusBarHeight = isMobile ? MediaQuery.of(context).padding.top : 0.0;
-      final topPadding = isMobile ? (statusBarHeight > 0 ? statusBarHeight - 15.0 : 0.0) : 0.0;
-      
+
       return Column(
         children: [
-          // 横屏时添加状态栏间距
-          if (isLandscape && topPadding > 0)
-            SizedBox(height: topPadding),
-          // 简化的标题栏
+          // 简化的标题栏 - Standard padding, SafeArea is handled by HomeScreen
           Container(
-            height: isLandscape ? 24.0 : null,  // 横屏时固定高度24px，与AppBar一致
-            padding: EdgeInsets.fromLTRB(
-              12,
-              isLandscape ? 0 : (topPadding + 8),  // 横屏时不需要额外padding，竖屏保持原样
-              12,
-              0,  // 底部padding设为0，由height控制
-            ),
-            alignment: Alignment.centerLeft,  // 垂直居中对齐
+            height: isLandscape ? 40.0 : 56.0,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
             child: Row(
               children: [
                 Text(
                   AppStrings.of(context)?.favorites ?? 'Favorites',
                   style: TextStyle(
                     color: AppTheme.getTextPrimary(context),
-                    fontSize: isLandscape ? 14 : 18,  // 横屏时字体14px
+                    fontSize: isLandscape ? 16 : 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -172,12 +148,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     if (provider.favorites.isEmpty) return const SizedBox.shrink();
                     return IconButton(
                       icon: Icon(
-                        Icons.delete_sweep_rounded, 
+                        Icons.delete_sweep_rounded,
                         color: AppTheme.getTextSecondary(context),
-                        size: isLandscape ? 14 : 24,  // 横屏时图标更小，与AppBar一致
+                        size: isLandscape ? 18 : 24,
                       ),
-                      padding: isLandscape ? const EdgeInsets.all(2) : null,  // 横屏时减少padding
-                      constraints: isLandscape ? const BoxConstraints() : null,  // 移除最小尺寸限制
                       onPressed: () => _confirmClearAll(context, provider),
                       tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
                     );
@@ -192,73 +166,36 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.getBackgroundColor(context),
-              AppTheme.getBackgroundColor(context).withOpacity(0.8),
-              AppTheme.getPrimaryColor(context).withOpacity(0.05),
-            ],
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          AppStrings.of(context)?.favorites ?? 'Favorites',
+          style: TextStyle(
+            color: AppTheme.getTextPrimary(context),
+            fontWeight: FontWeight.bold,
           ),
         ),
-        child: Column(
-          children: [
-            // 手机端添加状态栏高度
-            if (PlatformDetector.isMobile)
-              SizedBox(height: MediaQuery.of(context).padding.top),
-            Builder(
-              builder: (context) {
-                final width = MediaQuery.of(context).size.width;
-                final isMobile = PlatformDetector.isMobile;
-                final isLandscape = isMobile && width > 600;
-                return AppBar(
-                  backgroundColor: Colors.transparent,
-                  primary: false,  // 禁用自动SafeArea padding
-                  toolbarHeight: isLandscape ? 24.0 : 56.0,  // 横屏时减小到24px
-                  title: Text(
-                    AppStrings.of(context)?.favorites ?? 'Favorites',
-                    style: TextStyle(
-                      color: AppTheme.getTextPrimary(context),
-                      fontSize: isLandscape ? 14 : 20,  // 横屏时字体14px
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  leading: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: isLandscape ? 14 : 24,  // 横屏时图标更小
-                    ),
-                    padding: isLandscape ? const EdgeInsets.all(2) : null,
-                    constraints: isLandscape ? const BoxConstraints() : null,  // 移除最小尺寸限制
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  actions: [
-                    Consumer<FavoritesProvider>(
-                      builder: (context, provider, _) {
-                        if (provider.favorites.isEmpty) return const SizedBox.shrink();
-
-                        return IconButton(
-                          icon: Icon(
-                            Icons.delete_sweep_rounded,
-                            size: isLandscape ? 14 : 24,  // 横屏时图标更小
-                          ),
-                          padding: isLandscape ? const EdgeInsets.all(2) : null,
-                          constraints: isLandscape ? const BoxConstraints() : null,  // 移除最小尺寸限制
-                          onPressed: () => _confirmClearAll(context, provider),
-                          tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
-            ),
-            Expanded(child: content),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          Consumer<FavoritesProvider>(
+            builder: (context, provider, _) {
+              if (provider.favorites.isEmpty) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.delete_sweep_rounded),
+                onPressed: () => _confirmClearAll(context, provider),
+                tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
+              );
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: content,
       ),
     );
   }
@@ -319,12 +256,33 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           const SizedBox(height: 32),
           TVFocusable(
             autofocus: true,
-            onSelect: () => Navigator.pushNamed(context, AppRouter.channels),
-            child: ElevatedButton.icon(
-              onPressed: () => Navigator.pushNamed(context, AppRouter.channels),
-              icon: const Icon(Icons.live_tv_rounded),
-              label: Text(AppStrings.of(context)?.browseChannels ?? 'Browse Channels'),
-            ),
+            showFocusBorder: false,
+            onSelect: () => Navigator.pushNamed(context, AppRouter.channels, arguments: {'forceShowBackButton': true}),
+            child: const SizedBox.shrink(),
+            builder: (context, isFocused, child) {
+              return AnimatedScale(
+                scale: isFocused ? 1.05 : 1.0,
+                duration: AppTheme.animationFast,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pushNamed(context, AppRouter.channels),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
+                    foregroundColor: isFocused ? Colors.black : Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: BorderSide(color: isFocused ? Colors.white : Colors.white.withOpacity(0.05), width: 1.5),
+                    elevation: 0,
+                  ),
+                  icon: Icon(Icons.live_tv_rounded, size: 22, color: isFocused ? Colors.black : AppTheme.getPrimaryColor(context)),
+                  label: Text(
+                    AppStrings.of(context)?.browseChannels.toUpperCase() ?? 'BROWSE CHANNELS',
+                    style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.8),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -369,27 +327,29 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget _buildFavoriteCard(FavoritesProvider provider, dynamic channel, int index) {
     final isMobile = PlatformDetector.isMobile;
     final isLandscape = isMobile && MediaQuery.of(context).size.width > 600;
-    
+
     return TVFocusable(
       autofocus: index == 0,
       onSelect: () => _playChannel(channel),
-      focusScale: 1.02,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
         return AnimatedContainer(
           duration: AppTheme.animationFast,
           decoration: BoxDecoration(
-            color: AppTheme.getSurfaceColor(context),
-            borderRadius: BorderRadius.circular(isLandscape ? 12 : 16),  // 横屏时圆角更小
+            color: isFocused ? Colors.white : AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.transparent,
-              width: isFocused ? 2 : 0,
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 2.0,
             ),
             boxShadow: isFocused
                 ? [
                     BoxShadow(
-                      color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                      blurRadius: 12,
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 10),
                     ),
                   ]
                 : null,
@@ -398,121 +358,139 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         );
       },
       child: Padding(
-        padding: EdgeInsets.all(isLandscape ? 6 : 10),  // 横屏时减少padding
+        padding: EdgeInsets.all(isLandscape ? 10 : 14),
         child: Row(
           children: [
-            // Drag Handle
+            // Drag Handle - Modern minimal style
             ReorderableDragStartListener(
               index: index,
-              child: Container(
-                padding: EdgeInsets.all(isLandscape ? 4 : 6),  // 横屏时减少padding
-                child: Icon(
-                  Icons.drag_indicator_rounded,
-                  color: AppTheme.textMuted,
-                  size: isLandscape ? 14 : 18,  // 横屏时图标更小
-                ),
+              child: Builder(builder: (context) {
+                final isFocused = Focus.of(context).hasFocus;
+                return Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.drag_indicator_rounded,
+                    color: isFocused ? Colors.black26 : Colors.white24,
+                    size: isLandscape ? 18 : 22,
+                  ),
+                );
+              }),
+            ),
+
+            const SizedBox(width: 8),
+
+            // Channel Logo - Sleeker presentation
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: ChannelLogoWidget(
+                channel: channel,
+                width: isLandscape ? 60 : 76,
+                height: isLandscape ? 44 : 56,
+                fit: BoxFit.cover,
               ),
             ),
 
-            SizedBox(width: isLandscape ? 6 : 8),  // 横屏时减少间距
+            const SizedBox(width: 18),
 
-            // Channel Logo
-            ChannelLogoWidget(
-              channel: channel,
-              width: isLandscape ? 48 : 64,  // 横屏时logo更小
-              height: isLandscape ? 36 : 48,  // 横屏时logo更小
-              fit: BoxFit.contain,
-              borderRadius: BorderRadius.circular(isLandscape ? 8 : 10),  // 横屏时圆角更小
-            ),
-
-            SizedBox(width: isLandscape ? 10 : 16),  // 横屏时减少间距
-
-            // Channel Info
+            // Channel Info - Modern bold typography
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    channel.name,
-                    style: TextStyle(
-                      color: AppTheme.getTextPrimary(context),
-                      fontSize: isLandscape ? 12 : 14,  // 横屏时字体更小
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (channel.groupName != null) ...[
-                    SizedBox(height: isLandscape ? 1 : 2),  // 横屏时减少间距
-                    Text(
-                      channel.groupName!,
+                  Builder(builder: (context) {
+                    final isFocused = Focus.of(context).hasFocus;
+                    return Text(
+                      channel.name.toUpperCase(),
                       style: TextStyle(
-                        color: AppTheme.getTextSecondary(context),
-                        fontSize: isLandscape ? 10 : 11,  // 横屏时字体更小
+                        color: isFocused ? Colors.black : Colors.white,
+                        fontSize: isLandscape ? 13 : 15,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
                       ),
-                    ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  }),
+                  if (channel.groupName != null) ...[
+                    const SizedBox(height: 2),
+                    Builder(builder: (context) {
+                      final isFocused = Focus.of(context).hasFocus;
+                      return Text(
+                        channel.groupName!.toUpperCase(),
+                        style: TextStyle(
+                          color: isFocused ? Colors.black54 : Colors.white38,
+                          fontSize: isLandscape ? 10 : 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      );
+                    }),
                   ],
                 ],
               ),
             ),
 
-            // Actions
+            // Actions - Consistent high-level buttons
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Play Button
-                TVFocusable(
-                  onSelect: () => _playChannel(channel),
-                  child: Container(
-                    padding: EdgeInsets.all(isLandscape ? 6 : 8),  // 横屏时减少padding
-                    decoration: BoxDecoration(
-                      color: AppTheme.getPrimaryColor(context).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(isLandscape ? 6 : 8),  // 横屏时圆角更小
-                    ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: AppTheme.getPrimaryColor(context),
-                      size: isLandscape ? 16 : 20,  // 横屏时图标更小
-                    ),
-                  ),
+                _buildActionIconButton(
+                  icon: Icons.play_arrow_rounded,
+                  color: AppTheme.getPrimaryColor(context),
+                  onTap: () => _playChannel(channel),
                 ),
-                SizedBox(width: isLandscape ? 4 : 6),  // 横屏时减少间距
-
-                // Remove Button
-                TVFocusable(
-                  onSelect: () async {
+                const SizedBox(width: 8),
+                _buildActionIconButton(
+                  icon: Icons.favorite_rounded,
+                  color: AppTheme.errorColor,
+                  onTap: () async {
                     await provider.removeFavorite(channel.id!);
-
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text((AppStrings.of(context)?.removedFromFavorites ?? 'Removed "{name}" from favorites').replaceAll('{name}', channel.name)),
-                          action: SnackBarAction(
-                            label: AppStrings.of(context)?.undo ?? 'Undo',
-                            onPressed: () => provider.addFavorite(channel),
-                          ),
+                          content: Text('Removed ${channel.name} from favorites'),
                         ),
                       );
                     }
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.errorColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(isLandscape ? 6 : 8),  // 横屏时圆角更小
-                    ),
-                    child: Icon(
-                      Icons.favorite,
-                      color: AppTheme.errorColor,
-                      size: isLandscape ? 16 : 20,  // 横屏时图标更小
-                    ),
-                  ),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionIconButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isFocused ? color.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isFocused ? color : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: isFocused ? color : color.withOpacity(0.7),
+            size: 18,
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 

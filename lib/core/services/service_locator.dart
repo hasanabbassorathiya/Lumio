@@ -7,6 +7,7 @@ import '../platform/platform_detector.dart';
 import 'update_service.dart';
 import 'log_service.dart';
 import 'channel_logo_service.dart';
+import 'channel_logo_update_service.dart';
 import 'redirect_cache_service.dart';
 import 'watch_history_service.dart';
 import '../managers/update_manager.dart';
@@ -20,6 +21,7 @@ class ServiceLocator {
   static late UpdateManager _updateManager;
   static late LogService _logService;
   static late ChannelLogoService _channelLogoService;
+  static late ChannelLogoUpdateService _channelLogoUpdateService;
   static late RedirectCacheService _redirectCache;
   static late WatchHistoryService _watchHistory;
 
@@ -30,9 +32,10 @@ class ServiceLocator {
   static UpdateManager get updateManager => _updateManager;
   static LogService get log => _logService;
   static ChannelLogoService get channelLogo => _channelLogoService;
+  static ChannelLogoUpdateService get channelLogoUpdate => _channelLogoUpdateService;
   static RedirectCacheService get redirectCache => _redirectCache;
   static WatchHistoryService get watchHistory => _watchHistory;
-  
+
   /// Check if log service is initialized
   static bool get isLogInitialized {
     try {
@@ -45,7 +48,7 @@ class ServiceLocator {
   static Future<void> initPrefs() async {
     // Initialize SharedPreferences - Fast and critical for theme
     _prefs = await SharedPreferences.getInstance();
-    
+
     // Initialize log service early (after prefs) - pass prefs to avoid circular dependency
     _logService = LogService();
     await _logService.init(prefs: _prefs);
@@ -69,6 +72,9 @@ class ServiceLocator {
       log.e('Failed to initialize channel logo service: $e');
     });
 
+    // Initialize channel logo update service (after database)
+    _channelLogoUpdateService = ChannelLogoUpdateService(_database);
+
     // Initialize watch history service (after database)
     _watchHistory = WatchHistoryService();
   }
@@ -80,7 +86,7 @@ class ServiceLocator {
     // Initialize update service
     _updateService = UpdateService();
     _updateManager = UpdateManager();
-    
+
     // Initialize redirect cache service
     _redirectCache = RedirectCacheService();
   }

@@ -101,7 +101,7 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
                                 width: 64,
                                 height: 64,
                                 decoration: BoxDecoration(
-                                  gradient: AppTheme.getGradient(context),
+                                  color: AppTheme.getPrimaryColor(context),
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
@@ -272,7 +272,7 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
                         width: isLandscape ? 50 : 80,
                         height: isLandscape ? 50 : 80,
                         decoration: BoxDecoration(
-                          gradient: AppTheme.getGradient(context),
+                          color: AppTheme.getPrimaryColor(context),
                           borderRadius: BorderRadius.circular(isLandscape ? 12 : 20),
                           boxShadow: [
                             BoxShadow(
@@ -581,28 +581,25 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            color: isFocused ? Colors.white.withOpacity(0.05) : AppTheme.getSurfaceColor(context),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.transparent,
-              width: 2,
+              color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white.withOpacity(0.1),
+              width: 2.0,
             ),
           ),
           child: TextField(
             controller: controller,
             focusNode: focusNode,
             autofocus: autofocus,
-            style: TextStyle(color: AppTheme.getTextPrimary(context), fontSize: 14),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: TextStyle(color: AppTheme.getTextMuted(context)),
-              prefixIcon: Icon(prefixIcon, color: isFocused ? AppTheme.getPrimaryColor(context) : AppTheme.getTextMuted(context), size: 20),
-              filled: true,
-              fillColor: AppTheme.getCardColor(context),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              hintStyle: const TextStyle(color: Colors.white24, fontWeight: FontWeight.w500),
+              prefixIcon: Icon(prefixIcon, color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white24, size: 22),
+              filled: false,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             ),
           ),
         );
@@ -618,32 +615,42 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
   }) {
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: 1.02,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.getPrimaryColor(context),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 0,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading)
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-            else if (icon != null)
-              Icon(icon, size: 18),
-            if (icon != null || isLoading) const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
+      focusScale: 1.05,
+      showFocusBorder: false,
+      child: const SizedBox.shrink(),
+      builder: (context, isFocused, child) {
+        return AnimatedContainer(
+          duration: AppTheme.animationFast,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isFocused ? Colors.white : AppTheme.getPrimaryColor(context),
+              foregroundColor: isFocused ? Colors.black : Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (isLoading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                else if (icon != null)
+                  Icon(icon, size: 20),
+                if (icon != null || isLoading) const SizedBox(width: 8),
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -652,52 +659,46 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
     required IconData icon,
     required String label,
   }) {
-    final isWindows = !PlatformDetector.isTV && !PlatformDetector.isMobile;
-    
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: isWindows ? 1.0 : 1.02, // Windows端不缩放
-      showFocusBorder: !isWindows, // Windows端不显示外层焦点边框
+      focusScale: 1.05,
+      showFocusBorder: false,
+      child: const SizedBox.shrink(),
       builder: (context, isFocused, child) {
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: isWindows && isFocused
-                ? Border.all(
-                    color: AppTheme.getPrimaryColor(context),
-                    width: 2,
-                  )
-                : null,
+          duration: AppTheme.animationFast,
+          child: OutlinedButton(
+            onPressed: onPressed,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isFocused ? Colors.white.withOpacity(0.1) : Colors.transparent,
+              foregroundColor: Colors.white,
+              side: BorderSide(
+                color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white12,
+                width: 1.5,
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: isFocused ? AppTheme.getPrimaryColor(context) : Colors.white60),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: child,
         );
       },
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.getPrimaryColor(context),
-          side: BorderSide(color: AppTheme.getPrimaryColor(context).withOpacity(0.5)),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -710,25 +711,30 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
   }) {
     return TVFocusable(
       onSelect: onPressed,
-      focusScale: 1.02,
-      showFocusBorder: true,
+      focusScale: 1.05,
+      showFocusBorder: false,
       builder: (context, isFocused, child) {
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
+          duration: AppTheme.animationFast,
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: isPrimary && isFocused ? AppTheme.getGradient(context) : null,
-            color: isPrimary && !isFocused
-                ? AppTheme.getPrimaryColor(context)
-                : !isPrimary && isFocused
-                    ? AppTheme.getCardColor(context)
-                    : AppTheme.getCardColor(context).withOpacity(0.5),
+            color: isFocused
+                ? Colors.white
+                : AppTheme.getSurfaceColor(context),
             borderRadius: BorderRadius.circular(16),
-            border: !isPrimary
-                ? Border.all(
-                    color: isFocused ? AppTheme.getPrimaryColor(context) : AppTheme.getPrimaryColor(context).withOpacity(0.3),
-                    width: 2,
-                  )
+            border: Border.all(
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              width: 2.0,
+            ),
+            boxShadow: isFocused
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
                 : null,
           ),
           child: child,
@@ -736,48 +742,63 @@ class _AddPlaylistDialogState extends State<AddPlaylistDialog> {
       },
       child: Row(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isPrimary ? Colors.white.withOpacity(0.2) : AppTheme.getPrimaryColor(context).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: isPrimary ? Colors.white : AppTheme.getPrimaryColor(context),
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
+          Builder(builder: (context) {
+            final isFocused = Focus.of(context).hasFocus;
+            return AnimatedContainer(
+              duration: AppTheme.animationFast,
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: isFocused ? Colors.black.withOpacity(0.1) : AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isFocused ? Colors.black : AppTheme.getPrimaryColor(context),
+                size: 26,
+              ),
+            );
+          }),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isPrimary ? Colors.white : AppTheme.getTextPrimary(context),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    title.toUpperCase(),
+                    style: TextStyle(
+                      color: isFocused ? Colors.black : Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  );
+                }),
                 const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: isPrimary ? Colors.white.withOpacity(0.8) : AppTheme.getTextSecondary(context),
-                    fontSize: 11,
-                  ),
-                ),
+                Builder(builder: (context) {
+                  final isFocused = Focus.of(context).hasFocus;
+                  return Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isFocused ? Colors.black54 : Colors.white38,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  );
+                }),
               ],
             ),
           ),
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: isPrimary ? Colors.white : AppTheme.getTextMuted(context),
-            size: 14,
-          ),
+          Builder(builder: (context) {
+            final isFocused = Focus.of(context).hasFocus;
+            return Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: isFocused ? Colors.black26 : Colors.white12,
+              size: 14,
+            );
+          }),
         ],
       ),
     );
