@@ -45,8 +45,8 @@ class CategoryCard extends StatelessWidget {
                 : AppTheme.getSurfaceColor(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
             border: Border.all(
-              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
-              width: 2.0,
+              color: isFocused ? Colors.white.withOpacity(0.9) : Colors.white.withOpacity(0.05),
+              width: isFocused ? 1.5 : 1,
             ),
             boxShadow: isFocused
                 ? [

@@ -127,33 +127,33 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
       return Column(
         children: [
-          // 简化的标题栏 - Standard padding, SafeArea is handled by HomeScreen
+          // Premium Header
           Container(
-            height: isLandscape ? 40.0 : 56.0,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.fromLTRB(16, isLandscape ? 8 : 16, 16, 12),
+            decoration: BoxDecoration(
+              color: AppTheme.getBackgroundColor(context),
+            ),
             child: Row(
               children: [
                 Text(
-                  AppStrings.of(context)?.favorites ?? 'Favorites',
+                  AppStrings.of(context)?.favorites.toUpperCase() ?? 'FAVORITES',
                   style: TextStyle(
-                    color: AppTheme.getTextPrimary(context),
-                    fontSize: isLandscape ? 16 : 22,
-                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: isLandscape ? 14 : 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
                   ),
                 ),
                 const Spacer(),
                 Consumer<FavoritesProvider>(
                   builder: (context, provider, _) {
                     if (provider.favorites.isEmpty) return const SizedBox.shrink();
-                    return IconButton(
-                      icon: Icon(
-                        Icons.delete_sweep_rounded,
-                        color: AppTheme.getTextSecondary(context),
-                        size: isLandscape ? 18 : 24,
-                      ),
-                      onPressed: () => _confirmClearAll(context, provider),
+                    return _buildHeaderAction(
+                      icon: Icons.delete_sweep_rounded,
                       tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
+                      color: AppTheme.errorColor,
+                      onTap: () => _confirmClearAll(context, provider),
+                      isLandscape: isLandscape,
                     );
                   },
                 ),
@@ -167,36 +167,88 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          AppStrings.of(context)?.favorites ?? 'Favorites',
-          style: TextStyle(
-            color: AppTheme.getTextPrimary(context),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          Consumer<FavoritesProvider>(
-            builder: (context, provider, _) {
-              if (provider.favorites.isEmpty) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(Icons.delete_sweep_rounded),
-                onPressed: () => _confirmClearAll(context, provider),
-                tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
-              );
-            },
-          ),
-        ],
-      ),
       body: SafeArea(
-        child: content,
+        child: Column(
+          children: [
+            // Standard Page Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  _buildHeaderAction(
+                    icon: Icons.arrow_back_rounded,
+                    tooltip: 'Back',
+                    color: Colors.white,
+                    onTap: () => Navigator.pop(context),
+                    isLandscape: false,
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    AppStrings.of(context)?.favorites.toUpperCase() ?? 'FAVORITES',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const Spacer(),
+                  Consumer<FavoritesProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.favorites.isEmpty) return const SizedBox.shrink();
+                      return _buildHeaderAction(
+                        icon: Icons.delete_sweep_rounded,
+                        tooltip: AppStrings.of(context)?.clearAll ?? 'Clear All',
+                        color: AppTheme.errorColor,
+                        onTap: () => _confirmClearAll(context, provider),
+                        isLandscape: false,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: content),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required String tooltip,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isLandscape,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: EdgeInsets.all(isLandscape ? 6 : 10),
+            decoration: BoxDecoration(
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: isLandscape ? 18 : 20,
+              color: isFocused ? Colors.black : color,
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 

@@ -92,46 +92,28 @@ class _SearchScreenState extends State<SearchScreen> {
     final isTV = PlatformDetector.isTV || PlatformDetector.useDPadNavigation;
     final isMobile = PlatformDetector.isMobile;
     final isLandscape =
-        isMobile && MediaQuery.of(context).size.width > 600; // Consistent with other pages
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+        isMobile && MediaQuery.of(context).size.width > 600;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
-        isMobile ? 12 : 24,
+        isMobile ? 12 : 20,
         16,
         isMobile ? 12 : 16,
       ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppTheme.getBackgroundColor(context),
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.03), width: 1),
-        ),
       ),
       child: Row(
         children: [
           // Back Button - show only in non-embedded mode
           if (!widget.embedded)
-            TVFocusable(
-              onSelect: () => Navigator.pop(context),
-              focusScale: 1.1,
-              child: Builder(builder: (context) {
-                final isFocused = Focus.of(context).hasFocus;
-                return AnimatedContainer(
-                  duration: AppTheme.animationFast,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_rounded,
-                    color: isFocused ? Colors.black : Colors.white,
-                    size: 20,
-                  ),
-                );
-              }),
+            _buildHeaderAction(
+              icon: Icons.arrow_back_rounded,
+              tooltip: 'Back',
+              onTap: () => Navigator.pop(context),
+              isLandscape: isLandscape,
             ),
 
           if (!widget.embedded) const SizedBox(width: 16),
@@ -144,36 +126,62 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          const SizedBox(width: 12),
-
-          // QR Code Scan Button (TV only)
-          if (isTV)
-            TVFocusable(
-              onSelect: _showQrSearchDialog,
-              focusScale: 1.05,
-              child: Builder(builder: (context) {
-                final isFocused = Focus.of(context).hasFocus;
-                return AnimatedContainer(
-                  duration: AppTheme.animationFast,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isFocused ? AppTheme.getPrimaryColor(context) : AppTheme.getPrimaryColor(context).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isFocused ? Colors.white : AppTheme.getPrimaryColor(context).withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.qr_code_scanner_rounded,
-                    color: isFocused ? Colors.white : AppTheme.getPrimaryColor(context),
-                    size: 20,
-                  ),
-                );
-              }),
+          if (isTV) ...[
+            const SizedBox(width: 12),
+            // QR Code Scan Button
+            _buildHeaderAction(
+              icon: Icons.qr_code_scanner_rounded,
+              tooltip: 'Scan QR',
+              onTap: _showQrSearchDialog,
+              isLandscape: isLandscape,
+              primary: true,
             ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+    required bool isLandscape,
+    bool primary = false,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: EdgeInsets.all(isLandscape ? 8 : 10),
+            decoration: BoxDecoration(
+              color: isFocused
+                  ? Colors.white
+                  : (primary ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : Colors.white.withOpacity(0.05)),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isFocused
+                    ? Colors.white
+                    : (primary ? AppTheme.getPrimaryColor(context).withOpacity(0.3) : Colors.white.withOpacity(0.1)),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: isLandscape ? 18 : 20,
+              color: isFocused
+                  ? Colors.black
+                  : (primary ? AppTheme.getPrimaryColor(context) : Colors.white),
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 

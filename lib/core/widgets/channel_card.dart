@@ -89,17 +89,17 @@ class _ChannelCardState extends State<ChannelCard> {
                 borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 border: Border.all(
                   color: (_isFocused || _isHovered)
-                      ? Colors.white
+                      ? Colors.white.withOpacity(0.9)
                       : Colors.white.withOpacity(0.05),
-                  width: (_isFocused || _isHovered) ? 2.5 : 1,
+                  width: (_isFocused || _isHovered) ? 1.5 : 1,
                 ),
                 boxShadow: (_isFocused || _isHovered)
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 24,
-                          spreadRadius: 4,
-                          offset: const Offset(0, 12),
+                          color: Colors.black.withOpacity(0.6),
+                          blurRadius: 12,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 4),
                         ),
                       ]
                     : null,

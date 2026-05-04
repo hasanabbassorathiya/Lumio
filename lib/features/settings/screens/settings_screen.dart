@@ -190,15 +190,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.memory_rounded,
                 onTap: () => _showDecodingModeDialog(context, settings),
               ),
-              // Buffer size - temporarily hidden (unimplemented)
-              // _buildDivider(),
-              // _buildSelectTile(
-              //   context,
-              //   title: AppStrings.of(context)?.bufferSize ?? 'Buffer Size',
-              //   subtitle: '${settings.bufferSize} ${AppStrings.of(context)?.seconds ?? 'seconds'} ${AppStrings.of(context)?.notImplemented ?? '(Not implemented)'}',
-              //   icon: Icons.storage_rounded,
-              //   onTap: () => _showBufferSizeDialog(context, settings),
-              // ),
               _buildDivider(),
               _buildSelectTile(
                 context,
@@ -553,34 +544,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
 
-            // Parental control - temporarily hidden (unimplemented)
-            // const SizedBox(height: 24),
-            // _buildSectionHeader(AppStrings.of(context)?.parentalControl ?? 'Parental Control'),
-            // _buildSettingsCard([
-            //   _buildSwitchTile(
-            //     context,
-            //     title: AppStrings.of(context)?.enableParentalControl ?? 'Enable Parental Control',
-            //     subtitle: '${AppStrings.of(context)?.enableParentalControlSubtitle ?? 'Require PIN to access certain content'} ${AppStrings.of(context)?.notImplemented ?? '(Not implemented)'}',
-            //     icon: Icons.lock_outline_rounded,
-            //     value: settings.parentalControl,
-            //     onChanged: (value) {
-            //       settings.setParentalControl(value);
-            //       final strings = AppStrings.of(context);
-            //       _showError(context, strings?.parentalControlNotImplemented ?? 'Parental control not implemented, setting will not take effect');
-            //     },
-            //   ),
-            //   if (settings.parentalControl) ...[
-            //     _buildDivider(),
-            //     _buildActionTile(
-            //       context,
-            //       title: AppStrings.of(context)?.changePin ?? 'Change PIN',
-            //       subtitle: '${AppStrings.of(context)?.changePinSubtitle ?? 'Update your parental control PIN'} ${AppStrings.of(context)?.notImplemented ?? '(Not implemented)'}',
-            //       icon: Icons.pin_rounded,
-            //       onTap: () => _showChangePinDialog(context, settings),
-            //     ),
-            //   ],
-            // ]),
-
             const SizedBox(height: 24),
 
             // Developer & Debug Settings
@@ -701,22 +664,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       return Column(
         children: [
-          // Simplified title bar
+          // Premium Header
           Container(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              isLandscape ? 8 : 12,
-              16,
-              isLandscape ? 8 : 12,
+            padding: EdgeInsets.fromLTRB(16, isLandscape ? 8 : 16, 16, 12),
+            decoration: BoxDecoration(
+              color: AppTheme.getBackgroundColor(context),
             ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              AppStrings.of(context)?.settings ?? 'Settings',
-              style: TextStyle(
-                color: AppTheme.getTextPrimary(context),
-                fontSize: isLandscape ? 16 : 22,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  AppStrings.of(context)?.settings.toUpperCase() ?? 'SETTINGS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isLandscape ? 14 : 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(child: content),
@@ -726,28 +691,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: PlatformDetector.isMobile &&
-                MediaQuery.of(context).size.width > 600
-            ? 40.0
-            : 56.0,
-        automaticallyImplyLeading: false, // Do not show back button
-        title: Text(
-          AppStrings.of(context)?.settings ?? 'Settings',
-          style: TextStyle(
-              color: AppTheme.getTextPrimary(context),
-              fontSize: PlatformDetector.isMobile &&
-                      MediaQuery.of(context).size.width > 600
-                  ? 16
-                  : 22,
-              fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Standard Page Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  _buildHeaderAction(
+                    icon: Icons.arrow_back_rounded,
+                    tooltip: 'Back',
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    AppStrings.of(context)?.settings.toUpperCase() ?? 'SETTINGS',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: content),
+          ],
         ),
       ),
-      body: SafeArea(
-        child: content,
-      ),
+    );
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isFocused ? Colors.black : Colors.white,
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 

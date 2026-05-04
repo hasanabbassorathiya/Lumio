@@ -415,20 +415,42 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                 // Header
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   decoration: BoxDecoration(
                     color: AppTheme.getPrimaryColor(context),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.getPrimaryColor(context).withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    AppStrings.of(context)?.categories ?? 'Categories',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset('assets/AppIcon/icon_1024.png', width: 40, height: 40),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          AppStrings.of(context)?.categories.toUpperCase() ?? 'CATEGORIES',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
                 ),
-                Image.asset('assets/AppIcon/icon_1024.png'),
                 // All Channels Option
                 _buildMobileGroupItem(
                   name: AppStrings.of(context)?.allChannels ?? 'All Channels',
@@ -689,33 +711,53 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
               leading: isMobile
                   ? (widget.embedded
                       ? null // Embedded mode does not show menu button
-                      : IconButton(
-                          icon: Icon(
-                              (Navigator.of(context).canPop() || widget.forceShowBackButton)
-                                  ? Icons.arrow_back_rounded
-                                  : Icons.menu_rounded,
-                              color: AppTheme.getTextPrimary(context),
-                              size: isLandscape ? 18 : 24),
-                          padding: isLandscape ? const EdgeInsets.all(4) : null,
-                          onPressed: () {
-                            if (Navigator.of(context).canPop() || widget.forceShowBackButton) {
-                              Navigator.pop(context);
-                            } else {
-                              Scaffold.of(context).openDrawer();
-                            }
-                          },
+                      : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TVFocusable(
+                            onSelect: () {
+                              if (Navigator.of(context).canPop() || widget.forceShowBackButton) {
+                                Navigator.pop(context);
+                              } else {
+                                Scaffold.of(context).openDrawer();
+                              }
+                            },
+                            focusScale: 1.1,
+                            showFocusBorder: false,
+                            builder: (context, isFocused, child) {
+                              final isBack = Navigator.of(context).canPop() || widget.forceShowBackButton;
+                              return AnimatedContainer(
+                                duration: AppTheme.animationFast,
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(
+                                  isBack ? Icons.arrow_back_rounded : Icons.menu_rounded,
+                                  color: isFocused ? Colors.black : Colors.white,
+                                  size: isLandscape ? 18 : 22,
+                                ),
+                              );
+                            },
+                            child: const SizedBox.shrink(),
+                          ),
                         ))
                   : null,
               title: widget.embedded
                   ? null // Embedded mode does not show title (use FAB)
                   : Text(
-                      _selectedGroup ??
+                      (_selectedGroup ??
                           (AppStrings.of(context)?.allChannels ??
-                              'All Channels'),
+                              'All Channels')).toUpperCase(),
                       style: TextStyle(
-                        color: AppTheme.getTextPrimary(context),
-                        fontSize: isLandscape ? 13 : 20, // Smaller font in landscape
-                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: isLandscape ? 14 : 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
                       ),
                     ),
               actions: [
@@ -724,32 +766,27 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                   onTap: () => _showBackgroundTestProgress(context),
                 ),
                 // Test channels button
-                IconButton(
-                  icon: const Icon(Icons.speed_rounded),
-                  iconSize: isLandscape ? 16 : 24, // Smaller icon in landscape
-                  padding: isLandscape
-                      ? const EdgeInsets.all(2)
-                      : null, // Reduce padding in landscape
-                  color: AppTheme.getTextSecondary(context),
+                _buildHeaderAction(
+                  icon: Icons.speed_rounded,
                   tooltip: "Test Channels",
-                  onPressed: channels.isEmpty
-                      ? null
+                  onTap: channels.isEmpty
+                      ? () {}
                       : () => _showChannelTestDialog(context, channels),
+                  isLandscape: isLandscape,
                 ),
-                // Delete all unavailable channels button (only show when in unavailable group)
+                // Delete all unavailable channels button
                 if (_selectedGroup == ChannelProvider.unavailableGroupName &&
-                    channels.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.delete_sweep_rounded),
-                    iconSize: isLandscape ? 16 : 24, // Smaller icon in landscape
-                    padding: isLandscape
-                        ? const EdgeInsets.all(2)
-                        : null, // Reduce padding in landscape
-                    color: AppTheme.errorColor,
+                    channels.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  _buildHeaderAction(
+                    icon: Icons.delete_sweep_rounded,
                     tooltip: "Delete all invalid channels",
-                    onPressed: () =>
-                        _confirmDeleteAllUnavailable(context, provider),
+                    onTap: () => _confirmDeleteAllUnavailable(context, provider),
+                    isLandscape: isLandscape,
+                    color: AppTheme.errorColor,
                   ),
+                ],
+                const SizedBox(width: 8),
                 // Channel count badge
                 Center(
                   child: Container(
@@ -1443,6 +1480,43 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+    required bool isLandscape,
+    Color? color,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: isLandscape ? 18 : 20,
+              color: isFocused ? Colors.black : (color ?? Colors.white70),
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 }

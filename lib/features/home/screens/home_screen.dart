@@ -642,7 +642,7 @@ class _HomeScreenState extends State<HomeScreen>
                               showMore: true,
                               onMoreTap: () => Navigator.pushNamed(
                                   context, AppRouter.channels,
-                                  arguments: {'groupName': group.name}),
+                                  arguments: {'groupName': group.name, 'forceShowBackButton': true}),
                               isFirstRow: index == 0 &&
                                   _watchHistoryChannels
                                       .isEmpty, // 如果没有Watch History，第一个categories是第一行
@@ -784,6 +784,7 @@ class _HomeScreenState extends State<HomeScreen>
                   () => _continuePlayback(provider, lastChannel,
                       isMultiScreenMode, settingsProvider),
                   focusNode: _continueButtonFocusNode,
+                  isGradient: true,
                 ),
               const SizedBox(width: 8),
               if (activePlaylist != null)
@@ -826,9 +827,9 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  /// Netflix-style icon action button
+  /// Streaming-style icon action button
   Widget _buildIconAction(IconData icon, String tooltip, Color color,
-      VoidCallback onTap, {FocusNode? focusNode}) {
+      VoidCallback onTap, {FocusNode? focusNode, bool isGradient = false}) {
     return TVFocusable(
       focusNode: focusNode,
       onSelect: onTap,
@@ -841,15 +842,29 @@ class _HomeScreenState extends State<HomeScreen>
             duration: AppTheme.animationFast,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
+              gradient: (isGradient && !isFocused)
+                  ? AppTheme.getGradient(context)
+                  : null,
               color: isFocused
                   ? Colors.white
-                  : color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
+                  : (isGradient ? null : Colors.white.withOpacity(0.05)),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
+              boxShadow: isFocused ? [
+                BoxShadow(
+                  color: (isGradient ? AppTheme.getPrimaryColor(context) : Colors.black).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ] : null,
             ),
             child: Icon(
               icon,
               size: 20,
-              color: isFocused ? Colors.black : color,
+              color: isFocused ? Colors.black : (isGradient ? Colors.white : color),
             ),
           ),
         );
@@ -1326,19 +1341,38 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildHeroButton(IconData icon, String label, bool isPrimary, VoidCallback onTap) {
+    final isMobile = PlatformDetector.isMobile;
     return TVFocusable(
       onSelect: onTap,
-      focusScale: 1.1,
+      focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
         return AnimatedContainer(
           duration: AppTheme.animationFast,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 16 : 24,
+            vertical: isMobile ? 10 : 14,
+          ),
           decoration: BoxDecoration(
             color: isFocused
-                ? (isPrimary ? Colors.white : Colors.white.withOpacity(0.2))
-                : (isPrimary ? Colors.white : Colors.white.withOpacity(0.1)),
-            borderRadius: BorderRadius.circular(8),
+                ? Colors.white
+                : (isPrimary
+                    ? AppTheme.getPrimaryColor(context).withOpacity(0.9)
+                    : Colors.white.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(AppTheme.radiusPill), // Always pill for hero
+            border: Border.all(
+              color: isFocused
+                  ? Colors.white
+                  : (isPrimary ? Colors.transparent : Colors.white.withOpacity(0.2)),
+              width: 1.5,
+            ),
+            boxShadow: isFocused ? [
+              BoxShadow(
+                color: (isPrimary ? AppTheme.getPrimaryColor(context) : Colors.black).withOpacity(0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              )
+            ] : null,
           ),
           child: child,
         );
@@ -1348,17 +1382,18 @@ class _HomeScreenState extends State<HomeScreen>
         final color = isFocused ? Colors.black : Colors.white;
         return Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(width: 10),
+            Icon(icon, color: color, size: isMobile ? 20 : 24),
+            const SizedBox(width: 8),
             Flexible(
               child: Text(
                 label,
                 style: TextStyle(
                   color: color,
-                  fontSize: 14,
+                  fontSize: isMobile ? 12 : 14,
                   fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
+                  letterSpacing: 1.2,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1375,7 +1410,7 @@ class _HomeScreenState extends State<HomeScreen>
       groups: provider.groups,
       onGroupTap: (groupName) => Navigator.pushNamed(
           context, AppRouter.channels,
-          arguments: {'groupName': groupName}),
+          arguments: {'groupName': groupName, 'forceShowBackButton': true}),
     );
   }
 
@@ -1408,11 +1443,15 @@ class _HomeScreenState extends State<HomeScreen>
                   return AnimatedContainer(
                     duration: AppTheme.animationFast,
                     padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 10 : 14,
-                        vertical: isMobile ? 5 : 7),
+                        horizontal: isMobile ? 12 : 16,
+                        vertical: isMobile ? 6 : 8),
                     decoration: BoxDecoration(
                       color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                      border: Border.all(
+                        color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                        width: 1.5,
+                      ),
                     ),
                     child: child,
                   );
@@ -1424,16 +1463,17 @@ class _HomeScreenState extends State<HomeScreen>
                       final isFocused = Focus.of(context).hasFocus;
                       return Text(AppStrings.of(context)?.more.toUpperCase() ?? 'MORE',
                           style: TextStyle(
-                              color: isFocused ? Colors.black : AppTheme.getTextMuted(context),
+                              color: isFocused ? Colors.black : Colors.white70,
                               fontWeight: FontWeight.w900,
-                              fontSize: isMobile ? 10 : 11));
+                              fontSize: isMobile ? 10 : 11,
+                              letterSpacing: 0.5));
                     }),
                     const SizedBox(width: 4),
                     Builder(builder: (context) {
                       final isFocused = Focus.of(context).hasFocus;
                       return Icon(Icons.chevron_right_rounded,
-                          color: isFocused ? Colors.black : AppTheme.getTextMuted(context),
-                          size: isMobile ? 14 : 16);
+                          color: isFocused ? Colors.black : Colors.white70,
+                          size: isMobile ? 16 : 18);
                     }),
                   ],
                 ),
@@ -1443,13 +1483,11 @@ class _HomeScreenState extends State<HomeScreen>
         SizedBox(height: isMobile ? 6 : 8),
         LayoutBuilder(
           builder: (context, constraints) {
-            // 如果没有channels，不显示任何内容
             if (channels.isEmpty) {
               return const SizedBox.shrink();
             }
 
             final availableWidth = constraints.maxWidth;
-            // Home screen uses specialized calculation to show more smaller cards
             final cardsPerRow =
                 CardSizeCalculator.calculateHomeCardsPerRow(availableWidth);
             final cardSpacing = CardSizeCalculator.spacing;
@@ -1457,43 +1495,36 @@ class _HomeScreenState extends State<HomeScreen>
             final cardWidth = (availableWidth - totalSpacing) / cardsPerRow;
             final cardHeight = cardWidth / CardSizeCalculator.aspectRatio();
 
-            // 显示数量不能超过实际channels数量
-            final displayCount = cardsPerRow.clamp(1, channels.length);
-
+            // Netflix-style: horizontal scroll showing all channels
             return SizedBox(
               height: cardHeight,
-              child: Row(
-                children: List.generate(displayCount, (index) {
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: channels.length,
+                separatorBuilder: (_, __) => SizedBox(width: cardSpacing),
+                itemBuilder: (context, index) {
                   final channel = channels[index];
-
-                  return Padding(
-                    padding: EdgeInsets.only(
-                        right: index < displayCount - 1 ? cardSpacing : 0),
-                    child: SizedBox(
-                      width: cardWidth,
-                      child: _OptimizedChannelCard(
-                        channel: channel,
-                        onTap: () => _playChannel(channel),
-                        onUp: isFirstRow && PlatformDetector.isTV
-                            ? () {
-                                // TV side第一行（Watch History）When pressing UP, jump to "Continue Watching" button
-                                if (_scrollController.hasClients &&
-                                    _scrollController.offset > 0) {
-                                  // If not at top, scroll to top first
-                                  _scrollController.animateTo(
-                                    0,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeOut,
-                                  );
-                                }
-                                // Request focus for "Continue Watching" button
-                                _continueButtonFocusNode.requestFocus();
+                  return SizedBox(
+                    width: cardWidth,
+                    child: _OptimizedChannelCard(
+                      channel: channel,
+                      onTap: () => _playChannel(channel),
+                      onUp: isFirstRow && PlatformDetector.isTV
+                          ? () {
+                              if (_scrollController.hasClients &&
+                                  _scrollController.offset > 0) {
+                                _scrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOut,
+                                );
                               }
-                            : null,
-                      ),
+                              _continueButtonFocusNode.requestFocus();
+                            }
+                          : null,
                     ),
                   );
-                }),
+                },
               ),
             );
           },
@@ -1606,40 +1637,6 @@ class _HomeScreenState extends State<HomeScreen>
         .where((c) => favProvider.isFavorite(c.id ?? 0))
         .take(20)
         .toList();
-  }
-
-  Widget _buildThemeToggleButton() {
-    return Consumer<SettingsProvider>(
-      builder: (context, settings, _) {
-        final isDark = settings.themeMode == 'dark' ||
-            (settings.themeMode == 'system' &&
-                MediaQuery.of(context).platformBrightness == Brightness.dark);
-
-        return TVFocusable(
-          onSelect: () {
-            settings.setThemeMode(isDark ? 'light' : 'dark');
-          },
-          focusScale: 1.1,
-          showFocusBorder: false,
-          child: const SizedBox.shrink(),
-          builder: (context, isFocused, child) {
-            return AnimatedContainer(
-              duration: AppTheme.animationFast,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                size: 20,
-                color: isFocused ? Colors.black : Colors.white70,
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   void _showChannelOptions(BuildContext context, Channel channel) {

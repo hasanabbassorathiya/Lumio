@@ -46,23 +46,68 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              centerTitle: true,
-              title: Text(
-                AppStrings.of(context)?.playlistList ?? 'Playlist List',
-                style: TextStyle(
-                  color: AppTheme.getTextPrimary(context),
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+            // Premium Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  _buildHeaderAction(
+                    icon: Icons.arrow_back_rounded,
+                    tooltip: 'Back',
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    AppStrings.of(context)?.playlistList.toUpperCase() ?? 'SOURCES',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(child: content),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeaderAction({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return TVFocusable(
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isFocused ? Colors.white : Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isFocused ? Colors.white : Colors.white.withOpacity(0.1),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isFocused ? Colors.black : Colors.white,
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -187,7 +232,6 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
       focusScale: 1.05,
       showFocusBorder: false,
       builder: (context, isFocused, child) {
-        final showHighlight = isFocused || isActive;
         return AnimatedContainer(
           duration: AppTheme.animationFast,
           padding: EdgeInsets.all(isLandscape ? 8 : 14),
@@ -197,16 +241,18 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
                 : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.15) : AppTheme.getSurfaceColor(context)),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFocused ? Colors.white : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.white.withOpacity(0.05)),
-              width: 2.0,
+              color: isFocused
+                  ? Colors.white.withOpacity(0.9)
+                  : (isActive ? AppTheme.getPrimaryColor(context).withOpacity(0.5) : Colors.white.withOpacity(0.05)),
+              width: isFocused ? 1.5 : 1,
             ),
             boxShadow: isFocused
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 10),
+                      color: Colors.black.withOpacity(0.6),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
@@ -364,21 +410,6 @@ class _PlaylistListScreenState extends State<PlaylistListScreen> {
       },
       child: const SizedBox.shrink(),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}${AppStrings.of(context)?.minutesAgo ?? 'm ago'}';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}${AppStrings.of(context)?.hoursAgo ?? 'h ago'}';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}${AppStrings.of(context)?.daysAgo ?? 'd ago'}';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
   }
 
   Future<void> _refreshPlaylist(

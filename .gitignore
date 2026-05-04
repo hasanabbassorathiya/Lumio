@@ -80,6 +80,14 @@ temp_db.bin
 # Claude AI local config
 .claude/
 
+# Internal tool artifacts
+.agents/
+.asc/
+.blitz/
+.codex/
+all_profiles.json
+opencode.json
+
 # Kiro AI local config
 .kiro/
 

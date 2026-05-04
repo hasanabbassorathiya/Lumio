@@ -35,6 +35,132 @@
       },
       "createdAt": "2026-05-03T10:37:34.368Z",
       "updatedAt": "2026-05-03T10:37:34.368Z"
+    },
+    "swarm-1777809445351-w6pele": {
+      "swarmId": "swarm-1777809445351-w6pele",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T11:57:25.351Z",
+      "updatedAt": "2026-05-03T11:57:25.351Z"
+    },
+    "swarm-1777809448657-f7vh5c": {
+      "swarmId": "swarm-1777809448657-f7vh5c",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T11:57:28.657Z",
+      "updatedAt": "2026-05-03T11:57:28.657Z"
+    },
+    "swarm-1777814380806-8hou5v": {
+      "swarmId": "swarm-1777814380806-8hou5v",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T13:19:40.806Z",
+      "updatedAt": "2026-05-03T13:19:40.806Z"
+    },
+    "swarm-1777816358659-d6rlfg": {
+      "swarmId": "swarm-1777816358659-d6rlfg",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T13:52:38.659Z",
+      "updatedAt": "2026-05-03T13:52:38.659Z"
+    },
+    "swarm-1777822080473-5o6us4": {
+      "swarmId": "swarm-1777822080473-5o6us4",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T15:28:00.473Z",
+      "updatedAt": "2026-05-03T15:28:00.473Z"
+    },
+    "swarm-1777825112461-4tkj2w": {
+      "swarmId": "swarm-1777825112461-4tkj2w",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-03T16:18:32.461Z",
+      "updatedAt": "2026-05-03T16:18:32.461Z"
+    },
+    "swarm-1777886318896-tmzv73": {
+      "swarmId": "swarm-1777886318896-tmzv73",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-05-04T09:18:38.896Z",
+      "updatedAt": "2026-05-04T09:18:38.896Z"
     }
   },
   "version": "3.0.0"

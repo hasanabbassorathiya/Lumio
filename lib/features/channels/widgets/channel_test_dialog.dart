@@ -488,20 +488,29 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
     return TVFocusable(
       autofocus: autofocus,
       onSelect: onPressed,
-      child: Container(
+      child: AnimatedContainer(
+        duration: AppTheme.animationFast,
         height: isLandscape ? 38 : 50,
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(isLandscape ? 8 : 12),
-          border: borderColor != null
-              ? Border.all(color: borderColor, width: 1.5)
-              : null,
+          borderRadius: BorderRadius.circular(isLandscape ? 20 : 25), // Pill shape
+          border: Border.all(
+            color: borderColor ?? Colors.white.withOpacity(0.1),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(isLandscape ? 8 : 12),
+            borderRadius: BorderRadius.circular(isLandscape ? 20 : 25),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -514,7 +523,7 @@ class _ChannelTestDialogState extends State<ChannelTestDialog> {
                       color: foregroundColor,
                       fontSize: isLandscape ? 10 : 12,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
+                      letterSpacing: 1.2,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
