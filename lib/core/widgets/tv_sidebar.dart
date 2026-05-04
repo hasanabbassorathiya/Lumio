@@ -97,8 +97,8 @@ class _TVSidebarState extends State<TVSidebar> {
         // Push from home screen
         Navigator.pushNamed(context, route);
       } else {
-        // Replacement push from other pages
-        Navigator.pushReplacementNamed(context, route);
+        // Push from other pages to maintain history
+        Navigator.pushNamed(context, route);
       }
     }
   }
@@ -142,7 +142,36 @@ class _TVSidebarState extends State<TVSidebar> {
               children: [
                 const SizedBox(height: 24),
                 // Logo
-                _buildLogo(),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: shouldExpand ? 16 : 0),
+                  child: shouldExpand
+                      ? Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset('assets/AppIcon/icon_1024.png', width: 28, height: 28),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'LUMIO',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset('assets/AppIcon/icon_1024.png', width: 28, height: 28),
+                          ),
+                        ),
+                ),
                 const SizedBox(height: 32),
                 // Nav Items
                 Expanded(
@@ -174,7 +203,7 @@ class _TVSidebarState extends State<TVSidebar> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset('assets/icons/app_icon.png', width: 28, height: 28),
+                  child: Image.asset('assets/AppIcon/icon_1024.png', width: 28, height: 28),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(

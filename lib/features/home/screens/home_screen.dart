@@ -507,10 +507,10 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: BoxDecoration(
           color: AppTheme.getSurfaceColor(context),
           border: Border(
-              top: BorderSide(color: Colors.white.withOpacity(0.03), width: 1.0))),
+              top: BorderSide(color: Colors.white.withOpacity(0.06), width: 0.5))),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(navItems.length, (index) {
@@ -518,15 +518,16 @@ class _HomeScreenState extends State<HomeScreen>
               final isSelected = _selectedNavIndex == index;
               return GestureDetector(
                 onTap: () => _onNavItemTap(index),
+                behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: AppTheme.animationFast,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppTheme.getPrimaryColor(context).withOpacity(0.12)
+                        ? AppTheme.getPrimaryColor(context).withOpacity(0.15)
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -534,8 +535,20 @@ class _HomeScreenState extends State<HomeScreen>
                       Icon(item.icon,
                           color: isSelected
                               ? AppTheme.getPrimaryColor(context)
-                              : AppTheme.getTextSecondary(context),
+                              : AppTheme.getTextMuted(context),
                           size: 22),
+                      if (isSelected) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            color: AppTheme.getPrimaryColor(context),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -713,147 +726,135 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       padding: EdgeInsets.fromLTRB(
           isMobile ? 16 : 24,
+          isMobile ? 8 : 16,
           isMobile ? 12 : 24,
-          isMobile ? 16 : 24,
-          isMobile ? 12 : 16),
+          isMobile ? 8 : 12),
       decoration: BoxDecoration(
         color: AppTheme.getBackgroundColor(context),
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.03), width: 1),
-        ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Logo
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/icons/app_icon.jpg',
-                        height: isLandscape ? 30 : (isMobile ? 36 : 48),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Text Title
-                    Expanded(
-                      child: Text(
-                        "LUMIO IPTV",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.2,
-                          color: Colors.white,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // App Version
-                    Flexible(
-                      child: Text('V$_appVersion',
-                          style: TextStyle(
-                              fontSize: isLandscape ? 9 : 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                              color: Colors.white38),
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                    if (_availableUpdate != null) ...[
-                      const SizedBox(width: 12),
-                      TVFocusable(
-                        onSelect: () => Navigator.pushNamed(
-                            context, AppRouter.settings,
-                            arguments: {'autoCheckUpdate': true}),
-                        focusScale: 1.0,
-                        showFocusBorder: false,
-                        builder: (context, isFocused, child) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isFocused
-                                  ? AppTheme.getPrimaryColor(context)
-                                  : AppTheme.successColor.withOpacity(0.2),
-                              borderRadius:
-                                  BorderRadius.circular(6),
-                              border: Border.all(
-                                  color: isFocused
-                                      ? Colors.white
-                                      : AppTheme.successColor.withOpacity(0.5),
-                                  width: 1.5)
-                            ),
-                            child: child,
-                          );
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.system_update_rounded,
-                                size: 10, color: Colors.white),
-                            const SizedBox(width: 4),
-                            Text('UPDATE',
-                                style: const TextStyle(
-                                    fontSize: 9,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                if (!isMobile || MediaQuery.of(context).size.width <= 700) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    '${provider.totalChannelCount} CHANNELS · ${provider.groups.length} CATEGORIES',
-                    style: TextStyle(
-                        color: AppTheme.getTextMuted(context),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.center,
+          // Top row: Logo + Actions
+          Row(
             children: [
-              _buildHeaderButton(
+              // Logo
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/AppIcon/icon_1024.png',
+                  height: isMobile ? 32 : 40,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.live_tv_rounded,
+                    size: isMobile ? 28 : 36,
+                    color: AppTheme.getPrimaryColor(context),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // App Name
+              Text(
+                "LUMIO",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: isMobile ? 18 : 22,
+                  letterSpacing: 2.0,
+                  color: Colors.white,
+                ),
+              ),
+              if (!isMobile) ...[
+                const SizedBox(width: 6),
+                Text(
+                  'V$_appVersion',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white30,
+                  ),
+                ),
+              ],
+              const Spacer(),
+              // Action buttons - icon only on mobile
+              if (lastChannel != null || isMultiScreenMode)
+                _buildIconAction(
                   Icons.play_arrow_rounded,
-                  "CONTINUE",
-                  true,
-                  (lastChannel != null || isMultiScreenMode)
-                      ? () => _continuePlayback(provider, lastChannel,
-                          isMultiScreenMode, settingsProvider)
-                      : null,
-                  focusNode: _continueButtonFocusNode),
-              _buildHeaderButton(
+                  'Continue',
+                  AppTheme.getPrimaryColor(context),
+                  () => _continuePlayback(provider, lastChannel,
+                      isMultiScreenMode, settingsProvider),
+                  focusNode: _continueButtonFocusNode,
+                ),
+              const SizedBox(width: 8),
+              if (activePlaylist != null)
+                _buildIconAction(
                   Icons.refresh_rounded,
-                  "REFRESH",
-                  false,
-                  activePlaylist != null
-                      ? () =>
-                          _refreshCurrentPlaylist(playlistProvider, provider)
-                      : null),
-              _buildThemeToggleButton(),
+                  'Refresh',
+                  Colors.white70,
+                  () => _refreshCurrentPlaylist(playlistProvider, provider),
+                ),
+              if (_availableUpdate != null) ...[
+                const SizedBox(width: 8),
+                _buildIconAction(
+                  Icons.system_update_rounded,
+                  'Update',
+                  AppTheme.successColor,
+                  () => Navigator.pushNamed(
+                      context, AppRouter.settings,
+                      arguments: {'autoCheckUpdate': true}),
+                ),
+              ],
             ],
           ),
+          // Stats row
+          if (!isLandscape) ...[
+            const SizedBox(height: 6),
+            Text(
+              '${provider.totalChannelCount} CHANNELS  ·  ${provider.groups.length} CATEGORIES',
+              style: TextStyle(
+                color: AppTheme.getTextMuted(context),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  /// Netflix-style icon action button
+  Widget _buildIconAction(IconData icon, String tooltip, Color color,
+      VoidCallback onTap, {FocusNode? focusNode}) {
+    return TVFocusable(
+      focusNode: focusNode,
+      onSelect: onTap,
+      focusScale: 1.1,
+      showFocusBorder: false,
+      builder: (context, isFocused, child) {
+        return Tooltip(
+          message: tooltip,
+          child: AnimatedContainer(
+            duration: AppTheme.animationFast,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: isFocused
+                  ? Colors.white
+                  : color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isFocused ? Colors.black : color,
+            ),
+          ),
+        );
+      },
+      child: const SizedBox.shrink(),
     );
   }
 
@@ -1292,23 +1293,27 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 24),
 
                   // Action Buttons
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
+                  Row(
                     children: [
-                      _buildHeroButton(
-                        Icons.play_arrow_rounded,
-                        'PLAY NOW',
-                        true,
-                        () => _playChannel(heroChannel!),
-                      ),
-                      if (!isMobile)
-                        _buildHeroButton(
-                          Icons.info_outline_rounded,
-                          'CHANNEL INFO',
-                          false,
-                          () => _showChannelOptions(context, heroChannel!),
+                      Expanded(
+                        child: _buildHeroButton(
+                          Icons.play_arrow_rounded,
+                          'PLAY NOW',
+                          true,
+                          () => _playChannel(heroChannel!),
                         ),
+                      ),
+                      if (!isMobile) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildHeroButton(
+                            Icons.info_outline_rounded,
+                            'CHANNEL INFO',
+                            false,
+                            () => _showChannelOptions(context, heroChannel!),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ],
@@ -1346,13 +1351,17 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             Icon(icon, color: color, size: 24),
             const SizedBox(width: 10),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.0,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

@@ -43,13 +43,13 @@ class CardSizeCalculator {
         // Portrait mode
         mode = 'Portrait';
         if (availableWidth > 450) {
-          cardsPerRow = 6;
-        } else if (availableWidth > 350) {
-          cardsPerRow = 5;
-        } else if (availableWidth > 250) {
           cardsPerRow = 4;
-        } else {
+        } else if (availableWidth > 350) {
           cardsPerRow = 3;
+        } else if (availableWidth > 250) {
+          cardsPerRow = 3;
+        } else {
+          cardsPerRow = 2;
         }
       }
       ServiceLocator.log.d('Channel page card calculation - Mobile $mode: Width=${availableWidth.toStringAsFixed(1)}px, per row=$cardsPerRow cards', tag: 'CardSize');
@@ -138,13 +138,13 @@ class CardSizeCalculator {
         // Portrait mode
         mode = 'Portrait';
         if (availableWidth > 450) {
-          cardsPerRow = 5;
+          cardsPerRow = 4;
         } else if (availableWidth > 350) {
-          cardsPerRow = 4;
-        } else if (availableWidth > 250) {
-          cardsPerRow = 4;
-        } else {
           cardsPerRow = 3;
+        } else if (availableWidth > 250) {
+          cardsPerRow = 3;
+        } else {
+          cardsPerRow = 2;
         }
       }
       ServiceLocator.log.d('Home screen card calculation - Mobile $mode: Width=${availableWidth.toStringAsFixed(1)}px, per row=$cardsPerRow cards', tag: 'CardSize');

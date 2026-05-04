@@ -152,12 +152,17 @@ class _SplashScreenState extends State<SplashScreen>
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(30),
                       child: Image.asset(
-                        'assets/icons/app_icon.jpg',
-                        width: 80,
-                        height: 80,
+                        'assets/AppIcon/icon_1024.png',
+                        width: 120,
+                        height: 120,
                         fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.live_tv_rounded,
+                          size: 60,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

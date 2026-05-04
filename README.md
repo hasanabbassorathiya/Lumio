@@ -1,7 +1,7 @@
 # Lumio IPTV
 
 <p align="center">
-  <img src="assets/icons/app_icon.png" width="120" alt="Lumio IPTV Logo">
+  <img src="https://github.com/hasanabbassorathiya/lumio_iptv/blob/feature/playlist-qr-management/assets/icons/app_icon.jpg" width="120" alt="Lumio IPTV Logo">
 </p>
 
 <p align="center">

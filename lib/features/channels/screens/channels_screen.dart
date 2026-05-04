@@ -428,7 +428,7 @@ class _ChannelsScreenState extends State<ChannelsScreen> {
                     ),
                   ),
                 ),
-                Image.asset('assets/icons/app_icon.jpg'),
+                Image.asset('assets/AppIcon/icon_1024.png'),
                 // All Channels Option
                 _buildMobileGroupItem(
                   name: AppStrings.of(context)?.allChannels ?? 'All Channels',

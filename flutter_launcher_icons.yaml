@@ -7,5 +7,5 @@ flutter_launcher_icons:
     generate: false
   windows:
     generate: true
-    image_path: "/Users/macbookm1pro/Downloads/flutter_iptv/assets/icons/app_icon.jpg"
+    image_path: "assets/AppIcon/icon_1024.png"
     icon_size: 48

@@ -331,7 +331,7 @@ class _ChannelLogoWidgetState extends State<ChannelLogoWidget> {
         borderRadius: widget.borderRadius,
       ),
       child: Image.asset(
-        'assets/icons/app_icon.jpg',
+        'assets/AppIcon/icon_1024.png',
         fit: BoxFit.contain,
         opacity: const AlwaysStoppedAnimation(0.5), // Subtle branding
         errorBuilder: (context, error, stackTrace) {

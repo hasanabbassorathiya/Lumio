@@ -134,7 +134,7 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: Image.asset(
-                        'assets/icons/app_icon.png',
+                        'assets/AppIcon/icon_1024.png',
                         width: 18,
                         height: 18,
                         errorBuilder: (_, __, ___) => const Icon(
